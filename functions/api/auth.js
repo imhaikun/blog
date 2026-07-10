@@ -58,12 +58,14 @@ export async function onRequest(context) {
   const message = JSON.stringify({ token: data.access_token, provider: "github" });
   const postMessageStr = "authorization:github:success:" + message;
   const scriptContent = [
-    "try {",
-    "  if (window.opener) {",
-    "    window.opener.postMessage(" + JSON.stringify(postMessageStr) + ", '*');",
-    "  }",
-    "} catch (e) {}",
-    "window.close();"
+    "setTimeout(function() {",
+    "  try {",
+    "    if (window.opener) {",
+    "      window.opener.postMessage(" + JSON.stringify(postMessageStr) + ", '*');",
+    "    }",
+    "  } catch (e) {}",
+    "  window.close();",
+    "}, 200);"
   ].join("\n");
   const html = '<!DOCTYPE html><html><head><title>Auth</title></head><body><script>'
     + scriptContent + '<\/script></body></html>';
