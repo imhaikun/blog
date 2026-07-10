@@ -44,13 +44,20 @@ export async function onRequest(context) {
 
   if (data.error || !data.access_token) {
     return new Response("Auth failed: " + (data.error_description || data.error || "unknown"), { status: 400 });
-  }
+·  }
 
   // 第三步：通过 postMessage 将 token 发回给 Decap CMS
   // 消息格式必须是字符串：authorization:github:success:{json}
   const message = JSON.stringify({ token: data.access_token, provider: "github" });
   const postMessageStr = "authorization:github:success:" + message;
-  const scriptContent = "window.opener.postMessage(" + JSON.stringify(postMessageStr) + ", '*'); window.close();";
+  const scriptContent = [
+    "try {",
+    "  if (window.opener) {",
+    "    window.opener.postMessage(" + JSON.stringify(postMessageStr) + ", '*');",
+    "  }",
+    "} catch (e) {}",
+    "window.close();"
+  ].join("\n");
   const html = '<!DOCTYPE html><html><head><title>Auth</title></head><body><script>'
     + scriptContent + '<\/script></body></html>';
 
