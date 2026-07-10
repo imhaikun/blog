@@ -4,8 +4,35 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager</title>
+  <script>
+    (function() {
+      const token = localStorage.getItem('github_token');
+      if (!token) {
+        window.location.href = '/admin/login.html';
+      }
+    })();
+  </script>
 </head>
 <body>
   <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
+  <script>
+    const token = localStorage.getItem('github_token');
+    if (token) {
+      CMS.registerBackend('github', {
+        init: () => {
+          console.log('GitHub backend initialized with PAT');
+        },
+        authenticate: async () => {
+          const token = localStorage.getItem('github_token');
+          if (!token) {
+            window.location.href = '/admin/login.html';
+            throw new Error('No token');
+          }
+          return Promise.resolve();
+        },
+        getToken: () => localStorage.getItem('github_token')
+      });
+    }
+  </script>
 </body>
 </html>
