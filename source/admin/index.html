@@ -122,26 +122,35 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
   <script>
     (function() {
       const token = localStorage.getItem('github_token');
       
-      if (token) {
-        document.getElementById('loginModal').style.display = 'none';
-      } else {
+      if (!token) {
         document.getElementById('loginModal').style.display = 'flex';
+        document.getElementById('tokenForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          const inputToken = document.getElementById('token').value;
+          if (inputToken) {
+            localStorage.setItem('github_token', inputToken);
+            document.getElementById('loginModal').style.display = 'none';
+            // Load Decap CMS after token is saved
+            loadDecapCMS();
+          }
+        });
+      } else {
+        document.getElementById('loginModal').style.display = 'none';
+        loadDecapCMS();
       }
       
-      document.getElementById('tokenForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const token = document.getElementById('token').value;
-        if (token) {
-          localStorage.setItem('github_token', token);
-          document.getElementById('loginModal').style.display = 'none';
-          window.location.reload();
-        }
-      });
+      function loadDecapCMS() {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/decap-cms@^3/dist/decap-cms.js';
+        script.onerror = function() {
+          console.error('Failed to load Decap CMS');
+        };
+        document.body.appendChild(script);
+      }
     })();
   </script>
 </body>
