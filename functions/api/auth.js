@@ -65,9 +65,9 @@ export async function onRequest(context) {
     "    }",
     "  } catch (e) {}",
     "  window.close();",
-    "}, 200);"
+    "}, 500);"
   ].join("\n");
-  const html = '<!DOCTYPE html><html><head><title>Auth</title></head><body><script>'
+  const html = '<!DOCTYPE html><html><head><title>Auth</title></head><body><p>Authorization complete. You can close this window.</p><script>'
     + scriptContent + '<\/script></body></html>';
 
   return new Response(html, {
