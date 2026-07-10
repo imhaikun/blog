@@ -2,14 +2,24 @@ export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
+  const clientId = env.GITHUB_CLIENT_ID;
+  const clientSecret = env.GITHUB_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    return new Response(
+      "Missing GitHub OAuth environment variables. Set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET in Cloudflare Pages -> Settings -> Environment variables.",
+      { status: 500, headers: { "Content-Type": "text/plain; charset=utf-8" } }
+    );
+  }
 
   // 第一步：没有 code，跳转到 GitHub 授权
   if (!code) {
-    const clientId = env.GITHUB_CLIENT_ID;
-    const redirectUri = "https://" + url.hostname + "/api/auth";
-    const githubAuthUrl = "https://github.com/login/oauth/authorize?client_id=" 
-      + clientId + "&redirect_uri=" + encodeURIComponent(redirectUri) + "&scope=repo";
-    return Response.redirect(githubAuthUrl, 302);
+    const redirectUri = url.origin + "/api/auth";
+    const githubAuthUrl = new URL("https://github.com/login/oauth/authorize");
+    githubAuthUrl.searchParams.set("client_id", clientId);
+    githubAuthUrl.searchParams.set("redirect_uri", redirectUri);
+    githubAuthUrl.searchParams.set("scope", "public_repo");
+    return Response.redirect(githubAuthUrl.toString(), 302);
   }
 
   // 第二步：用 code 换 token
@@ -20,11 +30,15 @@ export async function onRequest(context) {
       "Accept": "application/json"
     },
     body: JSON.stringify({
-      client_id: env.GITHUB_CLIENT_ID,
-      client_secret: env.GITHUB_CLIENT_SECRET,
+      client_id: clientId,
+      client_secret: clientSecret,
       code: code
     })
   });
+
+  if (!tokenResponse.ok) {
+    return new Response("Failed to exchange GitHub code for access token", { status: 502 });
+  }
 
   const data = await tokenResponse.json();
 
@@ -34,10 +48,10 @@ export async function onRequest(context) {
 
   // 第三步：通过 postMessage 将 token 发回给 Decap CMS
   // 消息格式必须是字符串：authorization:github:success:{json}
-  var message = JSON.stringify({ token: data.access_token, provider: "github" });
-  var postMessageStr = "authorization:github:success:" + message;
-  var scriptContent = "window.opener.postMessage(" + JSON.stringify(postMessageStr) + ", '*'); window.close();";
-  var html = '<!DOCTYPE html><html><head><title>Auth</title></head><body><script>' 
+  const message = JSON.stringify({ token: data.access_token, provider: "github" });
+  const postMessageStr = "authorization:github:success:" + message;
+  const scriptContent = "window.opener.postMessage(" + JSON.stringify(postMessageStr) + ", '*'); window.close();";
+  const html = '<!DOCTYPE html><html><head><title>Auth</title></head><body><script>'
     + scriptContent + '<\/script></body></html>';
 
   return new Response(html, {
