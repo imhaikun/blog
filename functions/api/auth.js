@@ -53,24 +53,11 @@ export async function onRequest(context) {
     return new Response("Auth failed: " + (data.error_description || data.error || "unknown"), { status: 400 });
   }
 
-  // 第三步：通过 postMessage 将 token 发回给 Decap CMS
-  // 消息格式必须是字符串：authorization:github:success:{json}
-  const message = JSON.stringify({ token: data.access_token, provider: "github" });
-  const postMessageStr = "authorization:github:success:" + message;
-  const scriptContent = [
-    "setTimeout(function() {",
-    "  try {",
-    "    if (window.opener) {",
-    "      window.opener.postMessage(" + JSON.stringify(postMessageStr) + ", '*');",
-    "    }",
-    "  } catch (e) {}",
-    "  window.close();",
-    "}, 500);"
-  ].join("\n");
-  const html = '<!DOCTYPE html><html><head><title>Auth</title></head><body><p>Authorization complete. You can close this window.</p><script>'
-    + scriptContent + '<\/script></body></html>';
-
-  return new Response(html, {
-    headers: { "Content-Type": "text/html" }
-  });
+  // 第三步：将 token 编码到 URL hash 中并重定向回 admin 页面
+  const token = data.access_token;
+  const message = JSON.stringify({ token: token, provider: "github" });
+  const encodedMessage = encodeURIComponent(btoa(message));
+  const redirectUrl = url.origin + "/admin/#authorization:github:success:" + encodedMessage;
+  
+  return Response.redirect(redirectUrl, 302);
 }
