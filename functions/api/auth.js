@@ -26,25 +26,32 @@ export async function onRequest(context) {
   const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
       "Accept": "application/json"
     },
-    body: JSON.stringify({
+    body: new URLSearchParams({
       client_id: clientId,
       client_secret: clientSecret,
       code: code
-    })
+    }).toString()
   });
 
   if (!tokenResponse.ok) {
-    return new Response("Failed to exchange GitHub code for access token", { status: 502 });
+    const errorText = await tokenResponse.text();
+    return new Response("Failed to exchange GitHub code for access token: " + errorText, { status: 502 });
   }
 
-  const data = await tokenResponse.json();
+  let data;
+  try {
+    data = await tokenResponse.json();
+  } catch (error) {
+    const errorText = await tokenResponse.text();
+    return new Response("Failed to parse GitHub token response: " + errorText, { status: 502 });
+  }
 
   if (data.error || !data.access_token) {
     return new Response("Auth failed: " + (data.error_description || data.error || "unknown"), { status: 400 });
-·  }
+  }
 
   // 第三步：通过 postMessage 将 token 发回给 Decap CMS
   // 消息格式必须是字符串：authorization:github:success:{json}
