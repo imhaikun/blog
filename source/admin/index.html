@@ -658,6 +658,269 @@
           boot();
         }
       })();
+
+      // ========== 新建文章时自动填充当前日期时间 ==========
+      (function () {
+        const DATE_FIELD_FLAG = '__auto_date_filled__';
+        const PLACEHOLDER_PATTERN = /\?{4}-\?{2}-\?{2}|--:--|^\s*$/;
+
+        function padZero(n) {
+          return (n < 10 ? '0' : '') + n;
+        }
+
+        function getCurrentDateTimeLocal() {
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = padZero(now.getMonth() + 1);
+          const day = padZero(now.getDate());
+          const hours = padZero(now.getHours());
+          const minutes = padZero(now.getMinutes());
+          const seconds = padZero(now.getSeconds());
+          return {
+            dateStr: year + '-' + month + '-' + day,
+            timeStr: hours + ':' + minutes,
+            fullStr: year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds
+          };
+        }
+
+        function findDateInputs() {
+          const inputs = [];
+          const allInputs = document.querySelectorAll('input[type="date"], input[type="datetime-local"], input[type="text"]');
+          allInputs.forEach(function (input) {
+            const val = input.value || '';
+            const labelText = (function () {
+              const id = input.id || input.name || '';
+              if (!id) return '';
+              const label = document.querySelector('label[for="' + id + '"]');
+              return label ? (label.textContent || '').toLowerCase() : '';
+            })();
+            const isDateField = 
+              input.type === 'date' || 
+              input.type === 'datetime-local' ||
+              (PLACEHOLDER_PATTERN.test(val) && (labelText.indexOf('日期') !== -1 || labelText.indexOf('date') !== -1));
+            if (isDateField) {
+              inputs.push(input);
+            }
+          });
+
+          const allSelects = document.querySelectorAll('select');
+          allSelects.forEach(function (select) {
+            if (select && select.parentNode) {
+              const wrapper = select.closest('[class*="DateTimeWidget"], [class*="datetime-widget"], [class*="DateControl"], [class*="date-control"]');
+              if (wrapper && !wrapper[DATE_FIELD_FLAG]) {
+                inputs.push(wrapper);
+              }
+            }
+          });
+
+          return inputs;
+        }
+
+        function fillDateTimeWidget(wrapper, values) {
+          if (!wrapper || wrapper[DATE_FIELD_FLAG]) return false;
+
+          const dateInput = wrapper.querySelector('input[type="date"], input[type="text"]');
+          const timeInput = wrapper.querySelectorAll('input[type="time"], input[type="text"]')[1] || 
+                           wrapper.querySelector('input[type="time"]');
+          const selects = wrapper.querySelectorAll('select');
+          
+          let filled = false;
+
+          if (dateInput && PLACEHOLDER_PATTERN.test(dateInput.value || '')) {
+            try {
+              dateInput.value = values.dateStr;
+              dateInput.dispatchEvent(new Event('input', { bubbles: true }));
+              dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+              filled = true;
+            } catch (e) {}
+          }
+
+          if (timeInput && PLACEHOLDER_PATTERN.test(timeInput.value || '')) {
+            try {
+              timeInput.value = values.timeStr;
+              timeInput.dispatchEvent(new Event('input', { bubbles: true }));
+              timeInput.dispatchEvent(new Event('change', { bubbles: true }));
+              filled = true;
+            } catch (e) {}
+          }
+
+          if (selects.length >= 3) {
+            const yearSel = selects[0];
+            const monthSel = selects[1];
+            const daySel = selects[2];
+            
+            const y = values.dateStr.substring(0, 4);
+            const m = values.dateStr.substring(5, 7);
+            const d = values.dateStr.substring(8, 10);
+
+            tryFillSelect(yearSel, y);
+            tryFillSelect(monthSel, m);
+            tryFillSelect(daySel, d);
+
+            if (selects.length >= 5) {
+              const hourSel = selects[3];
+              const minSel = selects[4];
+              const h = values.timeStr.substring(0, 2);
+              const min = values.timeStr.substring(3, 5);
+              tryFillSelect(hourSel, h);
+              tryFillSelect(minSel, min);
+            }
+            filled = true;
+          }
+
+          if (filled) {
+            wrapper[DATE_FIELD_FLAG] = true;
+          }
+          return filled;
+        }
+
+        function tryFillSelect(select, value) {
+          if (!select) return false;
+          for (let i = 0; i < select.options.length; i++) {
+            const opt = select.options[i];
+            const optVal = (opt.value || opt.textContent || '').trim();
+            if (optVal === value || parseInt(optVal, 10) === parseInt(value, 10)) {
+              if (select.value !== value) {
+                select.value = opt.value;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                select.dispatchEvent(new Event('input', { bubbles: true }));
+              }
+              return true;
+            }
+          }
+          return false;
+        }
+
+        function tryClickNowButton(wrapper) {
+          if (!wrapper) return false;
+          const buttons = wrapper.querySelectorAll('button, [role="button"], [class*="Now"], [class*="now"]');
+          for (let i = 0; i < buttons.length; i++) {
+            const btn = buttons[i];
+            const txt = (btn.textContent || '').toLowerCase().trim();
+            if (txt === 'now' || txt === '现在' || txt.indexOf('now') !== -1 || txt.indexOf('现在') !== -1) {
+              try {
+                btn.click();
+                return true;
+              } catch (e) {}
+            }
+          }
+          return false;
+        }
+
+        function scanAndFillDate() {
+          const values = getCurrentDateTimeLocal();
+          const dateTargets = findDateInputs();
+          let anyFilled = false;
+
+          for (let i = 0; i < dateTargets.length; i++) {
+            const target = dateTargets[i];
+            if (target.nodeType === 1 && target.tagName !== 'INPUT') {
+              if (tryClickNowButton(target)) {
+                anyFilled = true;
+                target[DATE_FIELD_FLAG] = true;
+                continue;
+              }
+              if (fillDateTimeWidget(target, values)) {
+                anyFilled = true;
+              }
+            } else if (target.tagName === 'INPUT') {
+              const val = target.value || '';
+              if (PLACEHOLDER_PATTERN.test(val)) {
+                try {
+                  if (target.type === 'date') {
+                    target.value = values.dateStr;
+                  } else if (target.type === 'datetime-local') {
+                    target.value = values.dateStr + 'T' + values.timeStr;
+                  } else {
+                    target.value = values.fullStr;
+                  }
+                  target.dispatchEvent(new Event('input', { bubbles: true }));
+                  target.dispatchEvent(new Event('change', { bubbles: true }));
+                  anyFilled = true;
+                } catch (e) {}
+              }
+            }
+          }
+
+          return anyFilled;
+        }
+
+        let fillTimer = null;
+        function debouncedFill(delay) {
+          if (fillTimer) clearTimeout(fillTimer);
+          fillTimer = setTimeout(scanAndFillDate, delay || 150);
+        }
+
+        function bootAutoDate() {
+          setTimeout(scanAndFillDate, 500);
+
+          const observer = new MutationObserver(function (mutations) {
+            let shouldCheck = false;
+            for (let i = 0; i < mutations.length; i++) {
+              const m = mutations[i];
+              if (m.addedNodes && m.addedNodes.length > 0) {
+                shouldCheck = true;
+                break;
+              }
+              if (m.type === 'attributes' && m.target && m.target.tagName === 'INPUT') {
+                shouldCheck = true;
+                break;
+              }
+            }
+            if (shouldCheck) {
+              debouncedFill(120);
+            }
+          });
+
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['value', 'class']
+          });
+
+          let rounds = 0;
+          const intervalTimer = setInterval(function () {
+            rounds++;
+            scanAndFillDate();
+            if (rounds >= 15) {
+              clearInterval(intervalTimer);
+            }
+          }, 800);
+
+          if (window.CMS && typeof window.CMS.registerEventListener === 'function') {
+            try {
+              window.CMS.registerEventListener({
+                name: 'prePublishAutoDate',
+                handler: function (event) {
+                  setTimeout(function () {
+                    scanAndFillDate();
+                  }, 200);
+                }
+              });
+            } catch (e) {}
+          }
+
+          if (window.CMS && typeof window.CMS.registerEventListener === 'function') {
+            try {
+              window.CMS.registerEventListener({
+                name: 'onEntryNew',
+                handler: function (event) {
+                  setTimeout(function () {
+                    scanAndFillDate();
+                  }, 300);
+                }
+              });
+            } catch (e) {}
+          }
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', bootAutoDate);
+        } else {
+          bootAutoDate();
+        }
+      })();
     </script>
   </body>
 </html>
