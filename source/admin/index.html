@@ -4,6 +4,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>内容管理</title>
+    <style>
+      /* 修复文章列表标题可见性 */
+      [class*="EntryListing"] h2,
+      [class*="EntryListing"] span,
+      [class*="ListItem"] h2,
+      [class*="ListItem"] span {
+        color: #333 !important;
+      }
+      
+      /* 修复列表项背景和文字颜色 */
+      [class*="EntryListing"],
+      [class*="ListItem"] {
+        background-color: #fff;
+      }
+      
+      /* 确保链接文字可见 */
+      [class*="ListItem"] a,
+      [class*="EntryListing"] a {
+        color: #0066cc !important;
+      }
+    </style>
   </head>
   <body>
     <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
