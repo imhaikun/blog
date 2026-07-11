@@ -1,7 +1,4 @@
-i18n:
-  structure: single_file
-  locales: [zh, en]
-  default_locale: zh
+local_backend: true
 
 backend:
   name: github
@@ -25,14 +22,17 @@ collections:
     folder: "source/_posts"
     create: true
     slug: "{{slug}}"
-    i18n:
-      structure: single_file
-      locales: [zh, en]
-      default_locale: zh
+    identifier_field: title
+    summary: '{{title}} · {{date | date("YYYY-MM-DD")}}'
+    sortable_fields: ['date', 'title']
+    view_filters:
+      - label: "按年份"
+        field: date
+        pattern: ""
     fields:
-      - {label: "标题", name: "title", widget: "string", i18n: true}
+      - {label: "标题", name: "title", widget: "string"}
       - {label: "作者", name: "author", widget: "string", required: false}
-      - {label: "日期", name: "date", widget: "datetime", i18n: false}
+      - {label: "日期", name: "date", widget: "datetime"}
       - {label: "分类", name: "categories", widget: "string", required: false}
       - {label: "标签", name: "tags", widget: "list", field: {label: "标签", name: "tag", widget: "string"}, required: false}
-      - {label: "正文", name: "body", widget: "markdown", i18n: true}
+      - {label: "正文", name: "body", widget: "markdown"}

@@ -5,24 +5,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>内容管理</title>
     <style>
-      /* 修复文章列表标题可见性 */
-      [class*="EntryListing"] h2,
-      [class*="EntryListing"] span,
-      [class*="ListItem"] h2,
-      [class*="ListItem"] span {
-        color: #333 !important;
+      /* 全局修复：确保所有文字元素有明确颜色 */
+      * {
+        --nc-text: #1f2937 !important;
+        --nc-text-muted: #6b7280 !important;
       }
-      
+
+      /* 修复文章列表标题可见性 - 覆盖Decap CMS所有类名变体 */
+      [class*="EntryListing"] h1,
+      [class*="EntryListing"] h2,
+      [class*="EntryListing"] h3,
+      [class*="EntryListing"] h4,
+      [class*="EntryListing"] h5,
+      [class*="EntryListing"] h6,
+      [class*="EntryListing"] span,
+      [class*="EntryListing"] p,
+      [class*="EntryListing"] div,
+      [class*="EntryListing"] a,
+      [class*="ListItem"] h1,
+      [class*="ListItem"] h2,
+      [class*="ListItem"] h3,
+      [class*="ListItem"] h4,
+      [class*="ListItem"] h5,
+      [class*="ListItem"] h6,
+      [class*="ListItem"] span,
+      [class*="ListItem"] p,
+      [class*="ListItem"] div,
+      [class*="ListItem"] a,
+      [class*="entry-listing"] h1,
+      [class*="entry-listing"] h2,
+      [class*="entry-listing"] h3,
+      [class*="entry-listing"] span,
+      [class*="entry-listing"] p,
+      [class*="entry-listing"] a,
+      [class*="list-item"] h1,
+      [class*="list-item"] h2,
+      [class*="list-item"] h3,
+      [class*="list-item"] span,
+      [class*="list-item"] p,
+      [class*="list-item"] a {
+        color: #1f2937 !important;
+        opacity: 1 !important;
+      }
+
       /* 修复列表项背景和文字颜色 */
       [class*="EntryListing"],
-      [class*="ListItem"] {
-        background-color: #fff;
+      [class*="ListItem"],
+      [class*="entry-listing"],
+      [class*="list-item"] {
+        background-color: #ffffff !important;
       }
-      
+
       /* 确保链接文字可见 */
       [class*="ListItem"] a,
-      [class*="EntryListing"] a {
-        color: #0066cc !important;
+      [class*="EntryListing"] a,
+      [class*="list-item"] a,
+      [class*="entry-listing"] a {
+        color: #2563eb !important;
+      }
+
+      /* Netlify/Decap CMS 标准卡片和列表修复 */
+      [class*="Card"] h2,
+      [class*="Card"] h3,
+      [class*="Card"] h4,
+      [class*="Card"] span,
+      [class*="Card"] p,
+      [class*="card"] h2,
+      [class*="card"] h3,
+      [class*="card"] span,
+      [class*="card"] p {
+        color: #111827 !important;
+      }
+
+      /* 修复侧边栏和导航文字 */
+      [class*="Sidebar"] span,
+      [class*="Sidebar"] a,
+      [class*="Sidebar"] h1,
+      [class*="Sidebar"] h2,
+      [class*="Sidebar"] h3,
+      [class*="sidebar"] span,
+      [class*="sidebar"] a,
+      [class*="sidebar"] h1,
+      [class*="sidebar"] h2 {
+        color: #374151 !important;
+      }
+
+      /* 修复集合列表项 - 专门针对文章列表中可能的空文字问题 */
+      a[class*="Collection"],
+      li[class*="Collection"] span,
+      li[class*="Collection"] h2,
+      [class*="entries"] a,
+      [class*="entries"] h2,
+      [class*="entries"] h3,
+      [class*="entries"] span,
+      [class*="Entries"] a,
+      [class*="Entries"] h2,
+      [class*="Entries"] h3,
+      [class*="Entries"] span {
+        color: #111827 !important;
+      }
+
+      /* 强制所有可能的文字节点可见 */
+      [data-slate-editor],
+      [role="textbox"],
+      label,
+      button,
+      input,
+      textarea,
+      select,
+      option {
+        color: #111827 !important;
+      }
+
+      /* 修复可能的inherit导致的颜色问题 */
+      main *,
+      section *,
+      article * {
+        color: inherit;
+      }
+
+      main,
+      section,
+      article {
+        color: #1f2937 !important;
+      }
+
+      /* 修复卡片组件可能的CSS变量问题 */
+      [class*="css-"] {
+        color: #1f2937 !important;
       }
     </style>
   </head>
