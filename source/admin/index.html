@@ -3,9 +3,90 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Content Manager</title>
+    <title>内容管理</title>
   </head>
   <body>
     <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
+    <script src="https://unpkg.com/decap-cms@^3/dist/locales/zh.js"></script>
+    <script>
+      async function uploadToR2(file, uploadUrl) {
+        const formData = new FormData();
+        formData.append('file', file, file.name);
+
+        const response = await fetch(uploadUrl, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || 'Upload failed');
+        }
+
+        return response.json();
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.CMS && typeof window.CMS.registerLocale === 'function') {
+          window.CMS.registerLocale('zh', window.CMS_LOCALE_ZH);
+        }
+        
+        if (!window.CMS || typeof window.CMS.registerMediaLibrary !== 'function') {
+          return;
+        }
+
+        window.CMS.registerMediaLibrary({
+          name: 'r2',
+          label: 'Cloudflare R2 存储',
+          async init({ options = {}, handleInsertMedia, onClose }) {
+            const uploadUrl = options.upload_url || '/api/r2-upload';
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = options.accept || 'image/*';
+            input.multiple = true;
+
+            input.addEventListener('change', async () => {
+              const files = Array.from(input.files || []);
+              if (!files.length) {
+                onClose();
+                return;
+              }
+
+              try {
+                const uploaded = [];
+
+                for (const file of files) {
+                  const result = await uploadToR2(file, uploadUrl);
+
+                  if (typeof result.url !== 'string') {
+                    throw new Error('Invalid upload response');
+                  }
+
+                  uploaded.push({
+                    id: result.url,
+                    name: file.name,
+                    url: result.url,
+                    display_url: result.url,
+                    path: result.url,
+                  });
+                }
+
+                handleInsertMedia(uploaded);
+              } catch (error) {
+                console.error('R2 upload error', error);
+                window.alert('上传图片失败：' + error.message);
+              } finally {
+                onClose();
+              }
+            });
+
+            input.click();
+            return {
+              open: () => input.click(),
+            };
+          },
+        });
+      });
+    </script>
   </body>
 </html>

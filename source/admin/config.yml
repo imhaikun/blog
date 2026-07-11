@@ -1,3 +1,8 @@
+i18n:
+  structure: single_file
+  locales: [zh, en]
+  default_locale: zh
+
 backend:
   name: github
   repo: imhaikun/blog
@@ -7,14 +12,27 @@ backend:
 
 media_folder: "source/images"
 public_folder: "/images"
+media_library:
+  name: "r2"
+  config:
+    upload_url: "/api/r2-upload"
+    base_url: "https://images.202616.xyz"
 
 collections:
   - name: "posts"
     label: "文章"
+    label_singular: "文章"
     folder: "source/_posts"
     create: true
     slug: "{{slug}}"
+    i18n:
+      structure: single_file
+      locales: [zh, en]
+      default_locale: zh
     fields:
-      - {label: "标题", name: "title", widget: "string"}
-      - {label: "日期", name: "date", widget: "datetime"}
-      - {label: "正文", name: "body", widget: "markdown"}
+      - {label: "标题", name: "title", widget: "string", i18n: true}
+      - {label: "作者", name: "author", widget: "string", required: false}
+      - {label: "日期", name: "date", widget: "datetime", i18n: false}
+      - {label: "分类", name: "categories", widget: "string", required: false}
+      - {label: "标签", name: "tags", widget: "list", field: {label: "标签", name: "tag", widget: "string"}, required: false}
+      - {label: "正文", name: "body", widget: "markdown", i18n: true}
