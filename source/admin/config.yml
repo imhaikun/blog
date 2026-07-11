@@ -23,7 +23,7 @@ collections:
     create: true
     slug: "{{slug}}"
     identifier_field: title
-    summary: "{{date | date('YYYY-MM-DD HH:mm')}}"
+    summary: "{{title}}__TITLE_DATE_SPLIT__{{date | date('YYYY-MM-DD HH:mm')}}"
     sortable_fields: ['date', 'title']
     view_filters:
       - label: "按年份"

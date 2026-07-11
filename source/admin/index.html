@@ -127,7 +127,8 @@
         opacity: 1 !important;
       }
 
-      /* ========== 列表项布局：标题左 + 日期右（flex布局） ========== */
+      /* ========== 列表项布局：标题左 + 日期右（基于JS拆分后的class） ========== */
+      /* 基础容器样式（不强制flex，避免破坏原有嵌套结构） */
       [class*="EntryListing"],
       [class*="ListItem"],
       [class*="entry-listing"],
@@ -137,72 +138,55 @@
       [class*="CardEntry"],
       [class*="card-entry"] {
         background-color: #ffffff !important;
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: space-between !important;
-        align-items: center !important;
         padding: 12px 16px !important;
         border: 1px solid #e5e7eb !important;
         border-radius: 6px !important;
         margin-bottom: 8px !important;
       }
 
-      /* 确保列表项内部第一个元素（标题区域）左对齐 */
-      [class*="EntryListing"] > :first-child,
-      [class*="ListItem"] > :first-child,
-      [class*="entry-listing"] > :first-child,
-      [class*="list-item"] > :first-child,
-      [class*="EntryCard"] > :first-child,
-      [class*="entry-card"] > :first-child {
+      /* JS拆分后附加的flex行容器 */
+      .entry-row-flex {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        gap: 16px !important;
+      }
+
+      /* 拆分后的左侧标题 */
+      .entry-title-left {
         flex: 1 1 auto !important;
         text-align: left !important;
-        margin-right: 16px !important;
+        color: #111827 !important;
+        font-weight: 500 !important;
+        font-size: 1rem !important;
+        line-height: 1.4 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
       }
 
-      /* 确保列表项内部第二个/最后一个元素（日期/summary区域）右对齐 */
-      [class*="EntryListing"] > :last-child,
-      [class*="ListItem"] > :last-child,
-      [class*="entry-listing"] > :last-child,
-      [class*="list-item"] > :last-child,
-      [class*="EntryCard"] > :last-child,
-      [class*="entry-card"] > :last-child {
+      /* 拆分后的右侧日期 */
+      .entry-date-right {
         flex: 0 0 auto !important;
         text-align: right !important;
-        white-space: nowrap !important;
         color: #6b7280 !important;
         font-size: 0.875rem !important;
+        white-space: nowrap !important;
+        font-variant-numeric: tabular-nums !important;
       }
 
-      /* 针对Entry Listing的直接子元素a标签布局修复 */
+      /* 兜底：针对直接作为a子元素的span（table/list视图）也生效 */
       [class*="EntryListing"] a,
       [class*="ListItem"] a,
       [class*="entry-listing"] a,
       [class*="list-item"] a,
       [class*="EntryCard"] a,
       [class*="entry-card"] a {
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: space-between !important;
-        align-items: center !important;
         width: 100% !important;
         color: #1f2937 !important;
         text-decoration: none !important;
-      }
-
-      [class*="EntryListing"] a > *,
-      [class*="ListItem"] a > *,
-      [class*="entry-listing"] a > *,
-      [class*="list-item"] a > * {
-        text-align: left !important;
-      }
-
-      [class*="EntryListing"] a > *:last-child,
-      [class*="ListItem"] a > *:last-child,
-      [class*="entry-listing"] a > *:last-child,
-      [class*="list-item"] a > *:last-child {
-        text-align: right !important;
-        color: #6b7280 !important;
-        font-variant-numeric: tabular-nums !important;
       }
 
       /* ========== 链接颜色修复 ========== */
@@ -401,6 +385,116 @@
           })
           .catch(err => console.warn('Failed to load Chinese locale:', err));
       }
+
+      // ========== 拆分文章列表的 summary 字符串：标题左 | 日期右 ==========
+      (function () {
+        const SPLIT_MARK = '__TITLE_DATE_SPLIT__';
+        const PROCESSED_FLAG = '__entry_split_done__';
+
+        function splitTextNode(textNode) {
+          const text = textNode.nodeValue;
+          if (!text || text.indexOf(SPLIT_MARK) === -1) return false;
+
+          const parts = text.split(SPLIT_MARK);
+          if (parts.length !== 2) return false;
+          const titleText = (parts[0] || '').trim();
+          const dateText = (parts[1] || '').trim();
+          if (!titleText && !dateText) return false;
+
+          const row = document.createElement('div');
+          row.className = 'entry-row-flex';
+
+          const titleSpan = document.createElement('span');
+          titleSpan.className = 'entry-title-left';
+          titleSpan.textContent = titleText || '(无标题)';
+
+          const dateSpan = document.createElement('span');
+          dateSpan.className = 'entry-date-right';
+          dateSpan.textContent = dateText || '';
+
+          row.appendChild(titleSpan);
+          row.appendChild(dateSpan);
+
+          const parent = textNode.parentNode;
+          if (!parent) return false;
+          parent.replaceChild(row, textNode);
+          row[PROCESSED_FLAG] = true;
+          return true;
+        }
+
+        function scanAndSplit(root) {
+          if (!root) root = document.body;
+          let found = 0;
+          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+            acceptNode: function (node) {
+              if (!node.nodeValue || node.nodeValue.indexOf(SPLIT_MARK) === -1) {
+                return NodeFilter.FILTER_REJECT;
+              }
+              // 避免处理已经拆分行的内部文本、script/style 等
+              let p = node.parentNode;
+              while (p && p !== root) {
+                if (p.nodeType === 1) {
+                  const tag = (p.tagName || '').toUpperCase();
+                  if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') {
+                    return NodeFilter.FILTER_REJECT;
+                  }
+                  if (p.classList && p.classList.contains('entry-row-flex')) {
+                    return NodeFilter.FILTER_REJECT;
+                  }
+                }
+                p = p.parentNode;
+              }
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          });
+
+          // 需要先收集再处理，防止 walker 替换节点时遍历顺序被破坏
+          const targets = [];
+          let n;
+          while ((n = walker.nextNode())) targets.push(n);
+
+          for (let i = 0; i < targets.length; i++) {
+            if (splitTextNode(targets[i])) found++;
+          }
+          return found;
+        }
+
+        // 启动：立刻执行一次，之后使用 MutationObserver 监听 CMS 动态渲染，setInterval 兜底 10s
+        function boot() {
+          scanAndSplit(document.body);
+
+          const observer = new MutationObserver(function (mutations) {
+            for (let i = 0; i < mutations.length; i++) {
+              const m = mutations[i];
+              if (m.addedNodes && m.addedNodes.length) {
+                // 粗略扫描：只要有新增节点就全量扫 body（body 范围不大，性能可接受）
+                scanAndSplit(document.body);
+                break;
+              }
+            }
+          });
+
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+          });
+
+          // 兜底轮询：10 秒内每 500ms 扫一次，防止 MutationObserver 漏网
+          let rounds = 0;
+          const timer = setInterval(function () {
+            rounds++;
+            scanAndSplit(document.body);
+            if (rounds >= 20) clearInterval(timer);
+          }, 500);
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', boot);
+        } else {
+          boot();
+        }
+      })();
     </script>
   </body>
 </html>
