@@ -3,7 +3,7 @@ backend:
   repo: imhaikun/blog
   branch: main
   base_url: https://one.202616.xyz
-  auth_type: personal_token
+  auth_endpoint: api/auth
 
 media_folder: "source/images"
 public_folder: "/images"
