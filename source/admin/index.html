@@ -289,6 +289,117 @@
       [style*="background:#"] {
         background-color: #ffffff !important;
       }
+
+      /* ========== 紧凑行布局（类似目录列表） ========== */
+      /* 先把外层卡片/列表项改成无边框、无间距的紧凑行 */
+      [class*="EntryListing"],
+      [class*="entry-listing"],
+      [class*="EntriesList"],
+      [class*="entries-list"] {
+        background-color: #ffffff !important;
+      }
+
+      [class*="EntryListing"] > *,
+      [class*="entry-listing"] > *,
+      [class*="ListItem"],
+      [class*="list-item"],
+      [class*="EntryCard"],
+      [class*="entry-card"],
+      [class*="CardEntry"],
+      [class*="card-entry"],
+      [class*="EntryRow"],
+      [class*="entry-row"] {
+        background-color: transparent !important;
+        padding: 6px 4px !important;
+        border: none !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border-bottom: 1px dashed #9ca3af !important;
+      }
+
+      [class*="ListItem"]:last-child,
+      [class*="list-item"]:last-child,
+      [class*="EntryCard"]:last-child,
+      [class*="entry-card"]:last-child {
+        border-bottom: none !important;
+      }
+
+      /* 行内 a 标签占满宽度 */
+      [class*="ListItem"] a,
+      [class*="list-item"] a,
+      [class*="EntryCard"] a,
+      [class*="entry-card"] a,
+      [class*="EntryListing"] a,
+      [class*="entry-listing"] a {
+        width: 100% !important;
+        display: block !important;
+        padding: 0 !important;
+        color: #111827 !important;
+        text-decoration: none !important;
+      }
+
+      /* ========== 高优先级：拆分后的标题+日期 左右对齐 ========== */
+      body .entry-row-flex,
+      html body .entry-row-flex,
+      [class*="EntryListing"] .entry-row-flex,
+      [class*="entry-listing"] .entry-row-flex,
+      [class*="ListItem"] .entry-row-flex,
+      [class*="list-item"] .entry-row-flex,
+      [class*="EntryCard"] .entry-row-flex,
+      [class*="entry-card"] .entry-row-flex {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: baseline !important;
+        width: 100% !important;
+        gap: 24px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        background: transparent !important;
+      }
+
+      /* 左侧标题 */
+      body .entry-row-flex .entry-title-left,
+      html body .entry-row-flex .entry-title-left,
+      [class*="EntryListing"] .entry-title-left,
+      [class*="entry-listing"] .entry-title-left,
+      [class*="ListItem"] .entry-title-left,
+      [class*="list-item"] .entry-title-left,
+      [class*="EntryCard"] .entry-title-left,
+      [class*="entry-card"] .entry-title-left {
+        flex: 1 1 auto !important;
+        text-align: left !important;
+        color: #111827 !important;
+        font-weight: 400 !important;
+        font-size: 1rem !important;
+        line-height: 1.8 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        display: inline-block !important;
+      }
+
+      /* 右侧日期 */
+      body .entry-row-flex .entry-date-right,
+      html body .entry-row-flex .entry-date-right,
+      [class*="EntryListing"] .entry-date-right,
+      [class*="entry-listing"] .entry-date-right,
+      [class*="ListItem"] .entry-date-right,
+      [class*="list-item"] .entry-date-right,
+      [class*="EntryCard"] .entry-date-right,
+      [class*="entry-card"] .entry-date-right {
+        flex: 0 0 auto !important;
+        text-align: right !important;
+        color: #6b7280 !important;
+        font-size: 0.9rem !important;
+        font-weight: 400 !important;
+        white-space: nowrap !important;
+        font-variant-numeric: tabular-nums !important;
+        display: inline-block !important;
+        line-height: 1.8 !important;
+      }
     </style>
   </head>
   <body>
@@ -390,15 +501,21 @@
       (function () {
         const SPLIT_MARK = '__TITLE_DATE_SPLIT__';
         const PROCESSED_FLAG = '__entry_split_done__';
+        let debounceTimer = null;
 
         function splitTextNode(textNode) {
           const text = textNode.nodeValue;
-          if (!text || text.indexOf(SPLIT_MARK) === -1) return false;
+          if (text === null || text === undefined) return false;
+          if (typeof text !== 'string') return false;
+          if (text.indexOf(SPLIT_MARK) === -1) return false;
 
           const parts = text.split(SPLIT_MARK);
-          if (parts.length !== 2) return false;
+          if (parts.length < 2) return false;
+
           const titleText = (parts[0] || '').trim();
-          const dateText = (parts[1] || '').trim();
+          const dateParts = parts.slice(1);
+          const dateText = dateParts.join(SPLIT_MARK).trim();
+
           if (!titleText && !dateText) return false;
 
           const row = document.createElement('div');
@@ -417,9 +534,38 @@
 
           const parent = textNode.parentNode;
           if (!parent) return false;
-          parent.replaceChild(row, textNode);
+
+          try {
+            parent.replaceChild(row, textNode);
+          } catch (e) {
+            return false;
+          }
           row[PROCESSED_FLAG] = true;
           return true;
+        }
+
+        function isInsideSkippedTag(node) {
+          let p = node.parentNode;
+          while (p) {
+            if (p.nodeType === 1) {
+              const tag = (p.tagName || '').toUpperCase();
+              if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'TEXTAREA') {
+                return true;
+              }
+              if (p.classList && (
+                p.classList.contains('entry-row-flex') ||
+                p.classList.contains('entry-title-left') ||
+                p.classList.contains('entry-date-right')
+              )) {
+                return true;
+              }
+              if (p[PROCESSED_FLAG]) {
+                return true;
+              }
+            }
+            p = p.parentNode;
+          }
+          return false;
         }
 
         function scanAndSplit(root) {
@@ -430,25 +576,13 @@
               if (!node.nodeValue || node.nodeValue.indexOf(SPLIT_MARK) === -1) {
                 return NodeFilter.FILTER_REJECT;
               }
-              // 避免处理已经拆分行的内部文本、script/style 等
-              let p = node.parentNode;
-              while (p && p !== root) {
-                if (p.nodeType === 1) {
-                  const tag = (p.tagName || '').toUpperCase();
-                  if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') {
-                    return NodeFilter.FILTER_REJECT;
-                  }
-                  if (p.classList && p.classList.contains('entry-row-flex')) {
-                    return NodeFilter.FILTER_REJECT;
-                  }
-                }
-                p = p.parentNode;
+              if (isInsideSkippedTag(node)) {
+                return NodeFilter.FILTER_REJECT;
               }
               return NodeFilter.FILTER_ACCEPT;
             }
           });
 
-          // 需要先收集再处理，防止 walker 替换节点时遍历顺序被破坏
           const targets = [];
           let n;
           while ((n = walker.nextNode())) targets.push(n);
@@ -459,18 +593,35 @@
           return found;
         }
 
-        // 启动：立刻执行一次，之后使用 MutationObserver 监听 CMS 动态渲染，setInterval 兜底 10s
+        function debouncedScan(delay) {
+          if (debounceTimer) clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(function () {
+            scanAndSplit(document.body);
+          }, delay || 80);
+        }
+
         function boot() {
           scanAndSplit(document.body);
 
           const observer = new MutationObserver(function (mutations) {
+            let shouldScan = false;
             for (let i = 0; i < mutations.length; i++) {
               const m = mutations[i];
+              if (m.type === 'characterData') {
+                if (m.target && m.target.nodeValue && m.target.nodeValue.indexOf(SPLIT_MARK) !== -1) {
+                  if (!isInsideSkippedTag(m.target)) {
+                    shouldScan = true;
+                    break;
+                  }
+                }
+              }
               if (m.addedNodes && m.addedNodes.length) {
-                // 粗略扫描：只要有新增节点就全量扫 body（body 范围不大，性能可接受）
-                scanAndSplit(document.body);
+                shouldScan = true;
                 break;
               }
+            }
+            if (shouldScan) {
+              debouncedScan(80);
             }
           });
 
@@ -480,13 +631,25 @@
             characterData: true,
           });
 
-          // 兜底轮询：10 秒内每 500ms 扫一次，防止 MutationObserver 漏网
           let rounds = 0;
           const timer = setInterval(function () {
             rounds++;
-            scanAndSplit(document.body);
-            if (rounds >= 20) clearInterval(timer);
-          }, 500);
+            const found = scanAndSplit(document.body);
+            if (rounds >= 25 || (rounds > 5 && found === 0 && !debounceTimer)) {
+              clearInterval(timer);
+            }
+          }, 400);
+
+          if (window.CMS && typeof window.CMS.registerEventListener === 'function') {
+            try {
+              window.CMS.registerEventListener({
+                name: 'entryListSplit',
+                handler: function () {
+                  debouncedScan(100);
+                }
+              });
+            } catch (e) {}
+          }
         }
 
         if (document.readyState === 'loading') {
