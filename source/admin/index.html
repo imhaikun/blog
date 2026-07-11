@@ -5,13 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>内容管理</title>
     <style>
-      /* 全局修复：确保所有文字元素有明确颜色 */
+      /* ========== 全局CSS变量覆盖 - 修复深色主题/背景问题 ========== */
+      :root,
       * {
         --nc-text: #1f2937 !important;
         --nc-text-muted: #6b7280 !important;
+        --nc-bg: #f3f4f6 !important;
+        --nc-surface: #ffffff !important;
+        --nc-surface-hover: #f9fafb !important;
+        --nc-border: #e5e7eb !important;
+        --nc-primary: #2563eb !important;
+        --nc-primary-hover: #1d4ed8 !important;
+        --nc-primary-contrast: #ffffff !important;
+        --nc-accent: #10b981 !important;
+        --nc-accent-hover: #059669 !important;
+        --nc-danger: #ef4444 !important;
+        --nc-warning: #f59e0b !important;
+
+        --color-bg: #f3f4f6 !important;
+        --color-surface: #ffffff !important;
+        --color-text: #1f2937 !important;
+        --color-text-light: #6b7280 !important;
+        --color-primary: #2563eb !important;
+        --color-border: #e5e7eb !important;
       }
 
-      /* 修复文章列表标题可见性 - 覆盖Decap CMS所有类名变体 */
+      /* ========== 修复按钮/头部深色背景问题 ========== */
+      button,
+      [role="button"],
+      [class*="Button"],
+      [class*="button"],
+      [class*="Btn"],
+      [class*="btn"],
+      header button,
+      header [role="button"],
+      [class*="Header"] button,
+      [class*="header"] button,
+      [class*="Toolbar"] button,
+      [class*="toolbar"] button,
+      [class*="Toggle"] button,
+      [class*="toggle"] button,
+      select,
+      [class*="Select"],
+      [class*="select"] {
+        background-color: #ffffff !important;
+        color: #1f2937 !important;
+        border: 1px solid #d1d5db !important;
+      }
+
+      button:hover,
+      [role="button"]:hover,
+      [class*="Button"]:hover,
+      [class*="button"]:hover,
+      [class*="Btn"]:hover,
+      [class*="btn"]:hover {
+        background-color: #f3f4f6 !important;
+      }
+
+      /* 修复头部/工具栏深色背景 */
+      header,
+      [class*="Header"],
+      [class*="header"],
+      [class*="Toolbar"],
+      [class*="toolbar"],
+      [class*="TopBar"],
+      [class*="top-bar"],
+      [class*="Topbar"],
+      [class*="NavBar"],
+      [class*="navbar"],
+      [class*="Nav-bar"] {
+        background-color: #ffffff !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        color: #1f2937 !important;
+      }
+
+      /* 修复侧边栏深色背景 */
+      [class*="Sidebar"],
+      [class*="sidebar"],
+      [class*="SideBar"],
+      aside,
+      nav {
+        background-color: #f9fafb !important;
+        color: #1f2937 !important;
+        border-right: 1px solid #e5e7eb !important;
+      }
+
+      /* ========== 修复文章列表标题可见性 ========== */
       [class*="EntryListing"] h1,
       [class*="EntryListing"] h2,
       [class*="EntryListing"] h3,
@@ -48,15 +127,85 @@
         opacity: 1 !important;
       }
 
-      /* 修复列表项背景和文字颜色 */
+      /* ========== 列表项布局：标题左 + 日期右（flex布局） ========== */
       [class*="EntryListing"],
       [class*="ListItem"],
       [class*="entry-listing"],
-      [class*="list-item"] {
+      [class*="list-item"],
+      [class*="EntryCard"],
+      [class*="entry-card"],
+      [class*="CardEntry"],
+      [class*="card-entry"] {
         background-color: #ffffff !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 12px 16px !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 6px !important;
+        margin-bottom: 8px !important;
       }
 
-      /* 确保链接文字可见 */
+      /* 确保列表项内部第一个元素（标题区域）左对齐 */
+      [class*="EntryListing"] > :first-child,
+      [class*="ListItem"] > :first-child,
+      [class*="entry-listing"] > :first-child,
+      [class*="list-item"] > :first-child,
+      [class*="EntryCard"] > :first-child,
+      [class*="entry-card"] > :first-child {
+        flex: 1 1 auto !important;
+        text-align: left !important;
+        margin-right: 16px !important;
+      }
+
+      /* 确保列表项内部第二个/最后一个元素（日期/summary区域）右对齐 */
+      [class*="EntryListing"] > :last-child,
+      [class*="ListItem"] > :last-child,
+      [class*="entry-listing"] > :last-child,
+      [class*="list-item"] > :last-child,
+      [class*="EntryCard"] > :last-child,
+      [class*="entry-card"] > :last-child {
+        flex: 0 0 auto !important;
+        text-align: right !important;
+        white-space: nowrap !important;
+        color: #6b7280 !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 针对Entry Listing的直接子元素a标签布局修复 */
+      [class*="EntryListing"] a,
+      [class*="ListItem"] a,
+      [class*="entry-listing"] a,
+      [class*="list-item"] a,
+      [class*="EntryCard"] a,
+      [class*="entry-card"] a {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        color: #1f2937 !important;
+        text-decoration: none !important;
+      }
+
+      [class*="EntryListing"] a > *,
+      [class*="ListItem"] a > *,
+      [class*="entry-listing"] a > *,
+      [class*="list-item"] a > * {
+        text-align: left !important;
+      }
+
+      [class*="EntryListing"] a > *:last-child,
+      [class*="ListItem"] a > *:last-child,
+      [class*="entry-listing"] a > *:last-child,
+      [class*="list-item"] a > *:last-child {
+        text-align: right !important;
+        color: #6b7280 !important;
+        font-variant-numeric: tabular-nums !important;
+      }
+
+      /* ========== 链接颜色修复 ========== */
       [class*="ListItem"] a,
       [class*="EntryListing"] a,
       [class*="list-item"] a,
@@ -64,7 +213,7 @@
         color: #2563eb !important;
       }
 
-      /* Netlify/Decap CMS 标准卡片和列表修复 */
+      /* ========== 标准卡片和列表修复 ========== */
       [class*="Card"] h2,
       [class*="Card"] h3,
       [class*="Card"] h4,
@@ -77,7 +226,12 @@
         color: #111827 !important;
       }
 
-      /* 修复侧边栏和导航文字 */
+      [class*="Card"],
+      [class*="card"] {
+        background-color: #ffffff !important;
+      }
+
+      /* ========== 侧边栏和导航文字修复 ========== */
       [class*="Sidebar"] span,
       [class*="Sidebar"] a,
       [class*="Sidebar"] h1,
@@ -90,7 +244,7 @@
         color: #374151 !important;
       }
 
-      /* 修复集合列表项 - 专门针对文章列表中可能的空文字问题 */
+      /* ========== 集合列表修复 ========== */
       a[class*="Collection"],
       li[class*="Collection"] span,
       li[class*="Collection"] h2,
@@ -105,19 +259,25 @@
         color: #111827 !important;
       }
 
-      /* 强制所有可能的文字节点可见 */
+      /* ========== 表单控件修复 ========== */
       [data-slate-editor],
       [role="textbox"],
       label,
-      button,
       input,
       textarea,
       select,
       option {
         color: #111827 !important;
+        background-color: #ffffff !important;
       }
 
-      /* 修复可能的inherit导致的颜色问题 */
+      input,
+      textarea,
+      select {
+        border: 1px solid #d1d5db !important;
+      }
+
+      /* ========== 主体颜色继承修复 ========== */
       main *,
       section *,
       article * {
@@ -126,13 +286,24 @@
 
       main,
       section,
-      article {
+      article,
+      body {
         color: #1f2937 !important;
+        background-color: #f3f4f6 !important;
       }
 
-      /* 修复卡片组件可能的CSS变量问题 */
+      /* ========== CSS-in-JS 类名覆盖 ========== */
       [class*="css-"] {
         color: #1f2937 !important;
+        background-color: transparent !important;
+      }
+
+      /* 修复任何深色背景的div（如按钮、状态块） */
+      [style*="background-color: rgb("],
+      [style*="background-color:#"],
+      [style*="background: rgb("],
+      [style*="background:#"] {
+        background-color: #ffffff !important;
       }
     </style>
   </head>
