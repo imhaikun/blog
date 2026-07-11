@@ -1,0 +1,42 @@
+# GreenLeaf Theme Configuration
+
+# Site Info
+title: GreenLeaf
+subtitle: 用心记录生活
+description: 一个热爱技术与写作的博客
+author: GreenLeaf
+language: zh-CN
+
+# Navigation Menu
+menu:
+  首页: /
+  分类: /categories/
+  归档: /archives/
+  标签: /tags/
+  关于: /about/
+
+# Sidebar
+sidebar:
+  author:
+    name: GreenLeaf
+    avatar: /images/avatar.png
+    bio: 一个热爱技术与写作的博主
+  tags: true
+  archive: true
+
+# Footer
+footer:
+  copyright: © 2026 GreenLeaf
+  text: 用心记录生活
+
+# Social Links
+social:
+  github: https://github.com
+  twitter: https://twitter.com
+  rss: /atom.xml
+
+# Post Settings
+post:
+  excerpt:
+    length: 150
+  reading_time: true

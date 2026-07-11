@@ -1,0 +1,12 @@
+{
+  "name": "hexo-theme-greenleaf",
+  "version": "1.0.0",
+  "description": "A fresh and clean Hexo blog theme with mint green accent",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"no test specified\""
+  },
+  "keywords": ["hexo", "theme", "blog", "clean", "minimal"],
+  "author": "GreenLeaf",
+  "license": "MIT"
+}

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="<%= config.language || 'zh-CN' %>">
+<%- partial('_partial/head') %>
+<body style="font-family: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 1rem; line-height: 1.75; color: #2c3e2d; background-color: #ffffff; -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column;">
+  <%- partial('_partial/header') %>
+  <main style="flex: 1;">
+    <%- body %>
+  </main>
+  <%- partial('_partial/footer') %>
+  <style>
+    @media (min-width: 1024px) {
+      .sidebar-wrapper { display: block !important; }
+    }
+  </style>
+</body>
+</html>

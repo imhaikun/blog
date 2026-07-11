@@ -1,0 +1,15 @@
+<div style="flex: 1; max-width: 960px; margin: 0 auto; padding: var(--space-10) var(--space-6);">
+  <div style="display: flex; flex-wrap: wrap; gap: var(--space-10); align-items: flex-start;">
+
+    <!-- LEFT: Article List (~70%) -->
+    <div style="flex: 1; min-width: 0; max-width: 70%;">
+      <% page.posts.each(function(post, index) { %>
+      <%- partial('_partial/article-card', { post: post, is_first: index === 0 }) %>
+      <% }) %>
+    </div>
+
+    <!-- RIGHT: Sidebar (~30%) -->
+    <%- partial('_partial/sidebar', { show_sidebar: true }) %>
+
+  </div>
+</div>

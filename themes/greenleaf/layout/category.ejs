@@ -1,0 +1,17 @@
+<div style="max-width: 720px; margin: 0 auto; padding: var(--space-12) var(--space-8);">
+  <h1 style="margin: 0 0 var(--space-8); font-family: var(--font-serif); font-size: var(--text-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary);">分类</h1>
+
+  <div style="display: flex; flex-wrap: wrap; gap: var(--space-6);">
+    <% site.categories.sort('name').forEach(function(cat) { %>
+    <a href="<%= url_for(cat.path) %>" style="flex: 1 1 calc(50% - 1.5rem); min-width: 200px; display: block; padding: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background-color: var(--color-surface); text-decoration: none; transition: background-color var(--transition-fast);" onmouseover="this.style.backgroundColor='var(--color-surface-hover)'" onmouseout="this.style.backgroundColor='var(--color-surface)'">
+      <h3 style="margin: 0 0 var(--space-2); font-family: var(--font-serif); font-size: var(--text-lg); font-weight: var(--font-weight-semibold); color: var(--color-primary);">
+        <%= cat.name %>
+      </h3>
+      <p style="margin: 0 0 var(--space-2); font-size: var(--text-sm); color: var(--color-text-tertiary);"><%= cat.length %> 篇文章</p>
+      <% if (cat.description) { %>
+      <p style="margin: 0; font-size: var(--text-sm); color: var(--color-text-secondary);"><%- cat.description %></p>
+      <% } %>
+    </a>
+    <% }) %>
+  </div>
+</div>

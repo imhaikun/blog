@@ -1,0 +1,152 @@
+<% var show = typeof show_sidebar !== 'undefined' ? show_sidebar : true; %>
+<% if (!show) return; %>
+<aside style="display: none; width: 30%; flex-shrink: 0; position: sticky; top: 80px;" class="sidebar-wrapper">
+
+  <!-- Author Card -->
+  <div style="margin-bottom: var(--space-8); padding: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background-color: var(--color-surface);">
+    <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+      <div style="display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 60px; height: 60px; border-radius: var(--radius-full); background-color: var(--color-primary-lightest); color: var(--color-primary); font-family: var(--font-serif); font-weight: var(--font-weight-bold); font-size: var(--text-2xl); margin-bottom: var(--space-3);"><%= (config.author && config.author.charAt(0).toUpperCase()) || 'G' %></div>
+      <p style="margin: 0 0 var(--space-2); font-size: var(--text-base); font-weight: var(--font-weight-bold); color: var(--color-text-primary);"><%= config.author || config.title %></p>
+      <p style="margin: 0; font-size: var(--text-sm); color: var(--color-text-secondary);"><%= theme.author_bio || config.subtitle || config.description || '' %></p>
+    </div>
+  </div>
+
+  <!-- Recommended Posts -->
+  <div style="margin-bottom: var(--space-8); padding: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background-color: var(--color-surface);">
+    <h3 style="margin: 0 0 var(--space-4); font-size: var(--text-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); text-transform: uppercase; letter-spacing: 0.05em;">推荐阅读</h3>
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3);">
+      <%
+        var currentPath = (page && page.path) ? page.path : '';
+        var allPosts = site.posts.sort('-date').filter(function(p){ return p.path !== currentPath; }).toArray();
+        var recommended = [];
+        var pickedPaths = {};
+        var isPost = (page && page.layout === 'post');
+
+        function addToRecommend(postList) {
+          for (var i = 0; i < postList.length && recommended.length < 5; i++) {
+            var pt = postList[i];
+            if (!pt || !pt.path || pickedPaths[pt.path]) continue;
+            pickedPaths[pt.path] = true;
+            recommended.push(pt);
+          }
+        }
+
+        // 文章详情页：同分类 + 同标签关联
+        if (isPost && page) {
+          var pageCatIds = {};
+          if (page.categories) {
+            page.categories.toArray().forEach(function(c){ pageCatIds[c._id] = true; });
+          }
+          var pageTagIds = {};
+          if (page.tags) {
+            page.tags.toArray().forEach(function(t){ pageTagIds[t._id] = true; });
+          }
+
+          var sameCategory = [];
+          var sameTag = [];
+          var scoredOthers = [];
+
+          for (var j = 0; j < allPosts.length; j++) {
+            var ap = allPosts[j];
+            var score = 0;
+            var hasCat = false, hasTag = false;
+
+            if (ap.categories) {
+              ap.categories.toArray().forEach(function(c){
+                if (pageCatIds[c._id]) { hasCat = true; score += 10; }
+              });
+            }
+            if (ap.tags) {
+              ap.tags.toArray().forEach(function(t){
+                if (pageTagIds[t._id]) { hasTag = true; score += 5; }
+              });
+            }
+
+            if (hasCat) sameCategory.push(ap);
+            else if (hasTag) sameTag.push(ap);
+            else if (score > 0) scoredOthers.push({ post: ap, s: score });
+          }
+
+          addToRecommend(sameCategory);
+          addToRecommend(sameTag);
+          scoredOthers.sort(function(a,b){ return b.s - a.s; });
+          addToRecommend(scoredOthers.map(function(x){ return x.post; }));
+        }
+
+        // 不足部分：随机补齐（用文章索引随机打散，避免每次都一样）
+        if (recommended.length < 5 && allPosts.length > 0) {
+          var remain = [];
+          for (var k = 0; k < allPosts.length; k++) {
+            if (!pickedPaths[allPosts[k].path]) remain.push(allPosts[k]);
+          }
+          var seed = (typeof config.title === 'string' ? config.title.length : 7) + (currentPath.length * 13) + 31;
+          for (var m = remain.length - 1; m > 0; m--) {
+            seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+            var n = seed % (m + 1);
+            var tmp = remain[m]; remain[m] = remain[n]; remain[n] = tmp;
+          }
+          addToRecommend(remain);
+        }
+
+        recommended.forEach(function(post) {
+      %>
+      <li style="display: flex; flex-direction: column; gap: 2px;">
+        <a href="<%= url_for(post.path) %>"
+           style="color: var(--color-text-primary); text-decoration: none; font-size: var(--text-sm); font-weight: var(--font-weight-medium); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; transition: color var(--transition-fast);"
+           onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--color-text-primary)'">
+          <%= post.title %>
+        </a>
+        <% if (post.date) { %>
+        <time style="font-size: var(--text-xs); color: var(--color-text-tertiary);"><%= post.date.format('YYYY-MM-DD') %></time>
+        <% } %>
+      </li>
+      <% }) %>
+    </ul>
+  </div>
+
+  <!-- Archive -->
+  <div style="margin-bottom: var(--space-8); padding: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background-color: var(--color-surface);">
+    <h3 style="margin: 0 0 var(--space-4); font-size: var(--text-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); text-transform: uppercase; letter-spacing: 0.05em;">归档</h3>
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3);">
+      <%
+        var postsByYear = {};
+        var monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+        site.posts.sort('-date').forEach(function(post) {
+          var year = post.date.year();
+          var month = post.date.month();
+          if (!postsByYear[year]) postsByYear[year] = {};
+          if (!postsByYear[year][month]) postsByYear[year][month] = 0;
+          postsByYear[year][month]++;
+        });
+        var years = Object.keys(postsByYear).sort(function(a,b){ return b - a; });
+      %>
+      <% years.forEach(function(year) { %>
+      <li>
+        <p style="margin: 0 0 var(--space-1); font-size: var(--text-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-primary);"><%= year %></p>
+        <ul style="list-style: none; margin: 0; padding: 0 0 0 var(--space-3); display: flex; flex-direction: column; gap: var(--space-1);">
+          <% Object.keys(postsByYear[year]).sort(function(a,b){ return b - a; }).forEach(function(month) { %>
+          <li style="font-size: var(--text-sm); color: var(--color-text-secondary);">
+            <a href="<%= url_for('/archives/' + year + '/' + (Number(month) + 1) + '/') %>" style="text-decoration: none; color: var(--color-text-secondary); transition: color var(--transition-fast);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--color-text-secondary)'">
+              <%= monthNames[month] %> <span style="color: var(--color-text-tertiary);">(<%= postsByYear[year][month] %>)</span>
+            </a>
+          </li>
+          <% }) %>
+        </ul>
+      </li>
+      <% }) %>
+    </ul>
+  </div>
+
+  <!-- Tag Cloud -->
+  <div style="margin-bottom: var(--space-8); padding: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background-color: var(--color-surface);">
+    <h3 style="margin: 0 0 var(--space-4); font-size: var(--text-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); text-transform: uppercase; letter-spacing: 0.05em;">标签</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: var(--space-2);">
+      <% site.tags.sort('name').forEach(function(tag) { %>
+      <a href="<%= url_for(tag.path) %>" style="display: inline-flex; align-items: center; white-space: nowrap; text-decoration: none; padding: 3px 10px; border-radius: var(--radius-sm); background-color: var(--color-primary-lightest); color: var(--color-primary); font-size: var(--text-xs); transition: background-color var(--transition-fast);" onmouseover="this.style.backgroundColor='var(--color-primary-lighter)'" onmouseout="this.style.backgroundColor='var(--color-primary-lightest)'">
+        <%= tag.name %>
+      </a>
+      <% }) %>
+    </div>
+  </div>
+
+</aside>

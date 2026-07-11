@@ -1,0 +1,11 @@
+<div style="max-width: 720px; margin: 0 auto; padding: var(--space-12) var(--space-8);">
+  <h1 style="margin: 0 0 var(--space-8); font-family: var(--font-serif); font-size: var(--text-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary);">标签</h1>
+
+  <div style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
+    <% site.tags.sort('name').forEach(function(tag) { %>
+    <a href="<%= url_for(tag.path) %>" style="display: inline-flex; align-items: center; white-space: nowrap; text-decoration: none; padding: var(--space-2) var(--space-4); border-radius: var(--radius-sm); background-color: var(--color-primary-lightest); color: var(--color-primary); font-size: var(--text-sm); font-weight: var(--font-weight-medium); transition: background-color var(--transition-fast);" onmouseover="this.style.backgroundColor='var(--color-primary-lighter)'" onmouseout="this.style.backgroundColor='var(--color-primary-lightest)'">
+      <%= tag.name %> <span style="margin-left: var(--space-1); opacity: 0.7; font-size: var(--text-xs);"><%= tag.length %></span>
+    </a>
+    <% }) %>
+  </div>
+</div>

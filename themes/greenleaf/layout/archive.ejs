@@ -1,0 +1,39 @@
+<div style="max-width: 720px; margin: 0 auto; padding: var(--space-12) var(--space-8);">
+  <h1 style="margin: 0 0 var(--space-8); font-family: var(--font-serif); font-size: var(--text-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary);">归档</h1>
+
+  <%
+    var postsByYear = {};
+    var monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+    page.posts.sort('-date').forEach(function(post) {
+      var y = post.date.year();
+      var m = post.date.month();
+      if (!postsByYear[y]) postsByYear[y] = {};
+      if (!postsByYear[y][m]) postsByYear[y][m] = [];
+      postsByYear[y][m].push(post);
+    });
+    var years = Object.keys(postsByYear).sort(function(a,b){ return b - a; });
+  %>
+
+  <% years.forEach(function(year) { %>
+  <section style="margin-bottom: var(--space-8);">
+    <h2 style="margin: 0 0 var(--space-4); font-family: var(--font-serif); font-size: var(--text-xl); font-weight: var(--font-weight-bold); color: var(--color-primary);"><%= year %></h2>
+    <% Object.keys(postsByYear[year]).sort(function(a,b){ return b - a; }).forEach(function(month) { %>
+    <div style="margin-bottom: var(--space-4); padding-left: var(--space-4); border-left: 2px solid var(--color-primary-lighter);">
+      <p style="margin: 0 0 var(--space-2); font-size: var(--text-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-secondary);">
+        <%= monthNames[month] %> <span style="color: var(--color-text-tertiary);">(<%= postsByYear[year][month].length %>)</span>
+      </p>
+      <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2);">
+        <% postsByYear[year][month].forEach(function(post) { %>
+        <li style="display: flex; align-items: baseline; gap: var(--space-4); font-size: var(--text-sm);">
+          <time datetime="<%= post.date.format('YYYY-MM-DD') %>" style="color: var(--color-text-tertiary); flex-shrink: 0; font-variant-numeric: tabular-nums;"><%= post.date.format('MM-DD') %></time>
+          <a href="<%= url_for(post.path) %>" style="color: var(--color-text-secondary); text-decoration: none; transition: color var(--transition-fast);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--color-text-secondary)'">
+            <%= post.title %>
+          </a>
+        </li>
+        <% }) %>
+      </ul>
+    </div>
+    <% }) %>
+  </section>
+  <% }) %>
+</div>

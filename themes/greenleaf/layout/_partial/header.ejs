@@ -1,0 +1,52 @@
+<header style="position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: center; height: 56px; background-color: var(--color-surface); border-bottom: 1px solid var(--color-border);">
+  <nav style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 960px; padding: 0 var(--space-6);">
+
+    <!-- Logo -->
+    <a href="<%= url_for('/') %>" style="font-family: var(--font-serif); font-size: var(--text-xl); font-weight: var(--font-weight-bold); color: var(--color-primary); text-decoration: none; transition: opacity var(--transition-fast);" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+      <%= config.title || 'GreenLeaf' %>
+    </a>
+
+    <!-- Navigation Links -->
+    <ul style="display: flex; align-items: center; gap: 0.25rem; list-style: none; margin: 0; padding: 0; margin-left: auto;">
+      <% var menu = theme.menu || {}; %>
+      <% var menuKeys = Object.keys(menu); %>
+      <% menuKeys.forEach(function(key) { %>
+      <% var href = menu[key]; %>
+      <% var isActive = page.path === href || (page.path && page.path.indexOf(href.replace(/\/$/, '')) === 0); %>
+      <% var isHome = (key === 'home' || href === '/') && (page.path === 'index.html' || page.path === '/'); %>
+      <li>
+        <a
+          href="<%= url_for(href) %>"
+          data-nav-key="<%= key %>"
+          <%- isHome || isActive ? 'data-active' : '' %>
+          style="
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-size: var(--text-sm);
+            font-weight: var(--font-weight-medium);
+            color: <%- isHome || isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)' %>;
+            border-bottom: 2px solid <%- isHome || isActive ? 'var(--color-primary)' : 'transparent' %>;
+            transition: color var(--transition-fast), border-color var(--transition-fast);
+          "
+          onmouseover="this.style.color='var(--color-primary)';this.style.borderBottomColor='var(--color-primary)'"
+          onmouseout="<%- isHome || isActive ? '' : 'this.style.color=\'var(--color-text-secondary)\';this.style.borderBottomColor=\'transparent\'' %>"
+        ><%= key.charAt(0).toUpperCase() + key.slice(1) %></a>
+      </li>
+      <% }) %>
+    </ul>
+
+    <!-- Search Icon -->
+    <button type="button" aria-label="搜索"
+      style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: none; color: var(--color-text-tertiary); cursor: pointer; border-radius: var(--radius-md); transition: color var(--transition-fast), background-color var(--transition-fast);"
+      onmouseover="this.style.color='var(--color-primary)';this.style.backgroundColor='var(--color-bg-alt)'"
+      onmouseout="this.style.color='var(--color-text-tertiary)';this.style.backgroundColor='transparent'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </button>
+
+  </nav>
+</header>
