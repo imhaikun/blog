@@ -1,0 +1,13 @@
+themes:
+  - key: greenleaf
+    name: greenleaf
+    author: GreenLeaf
+    version: "1.0.0"
+    description: 清新简洁的薄荷绿博客主题
+    screenshot: ""
+  - key: landscape
+    name: Landscape
+    author: Hexo Team
+    version: "1.0.0"
+    description: Hexo 默认主题，Just another official theme
+    screenshot: ""

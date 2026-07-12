@@ -5,7 +5,315 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>内容管理</title>
     <style>
-      /* ========== 全局CSS变量覆盖 - 修复深色主题/背景问题 ========== */
+      /* ========== Typecho 风格布局 ========== */
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background-color: #f6f6f3;
+        color: #1f2937;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        font-size: 14px;
+      }
+
+      .typecho-layout {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        grid-template-rows: 44px 1fr;
+        grid-template-areas:
+          "topbar topbar"
+          "sidebar main";
+        min-height: 100vh;
+        width: 100%;
+      }
+
+      /* ========== 顶部 Logo 栏 ========== */
+      .typecho-topbar {
+        grid-area: topbar;
+        height: 44px;
+        background: #222;
+        color: #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        font-size: 13px;
+        border-bottom: 1px solid #000;
+        z-index: 20;
+      }
+      .typecho-topbar .brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        color: #fff;
+      }
+      .typecho-topbar .brand .logo {
+        width: 22px; height: 22px; border-radius: 4px;
+        background: #467b96;
+        display: inline-flex; align-items: center; justify-content: center;
+        color: #fff; font-weight: 900; font-size: 14px;
+      }
+      .typecho-topbar .toplinks {
+        display: flex; align-items: center; gap: 16px;
+      }
+      .typecho-topbar .toplinks a {
+        color: #bbb; text-decoration: none;
+      }
+      .typecho-topbar .toplinks a:hover { color: #fff; }
+
+      /* ========== 左侧侧边栏（一级 + 二级）—— 最高优先级防 Decap 覆盖 ========== */
+      html body .typecho-sidebar,
+      html body aside.typecho-sidebar,
+      body #typechoSidebar {
+        grid-area: sidebar;
+        background-color: #222 !important;
+        background-image: none !important;
+        color: #ddd !important;
+        min-height: calc(100vh - 44px);
+        padding: 12px 0 24px !important;
+        border-right: 1px solid #000 !important;
+        overflow-y: auto;
+        z-index: 10;
+      }
+      /* 所有子元素文字/背景强制锁定深色侧栏风格 */
+      html body .typecho-sidebar *,
+      html body aside.typecho-sidebar *,
+      body #typechoSidebar * {
+        color: #ddd !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+      }
+      html body .typecho-sidebar .l1-group { margin-bottom: 4px; }
+      html body .typecho-sidebar .l1-item,
+      body #typechoSidebar .l1-item {
+        display: block;
+        padding: 10px 12px 10px 18px !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        color: #ffffff !important;
+        border-left: 4px solid transparent !important;
+        cursor: pointer;
+        user-select: none;
+        text-decoration: none;
+      }
+      html body .typecho-sidebar .l1-group.active .l1-item,
+      html body .typecho-sidebar .l1-item:hover,
+      body #typechoSidebar .l1-group.active .l1-item {
+        background-color: #2d4f63 !important;
+        background-image: none !important;
+        border-left-color: #467b96 !important;
+        color: #ffffff !important;
+      }
+      html body .typecho-sidebar .l2-list {
+        margin: 0; padding: 0; list-style: none;
+      }
+      html body .typecho-sidebar .l2-item a,
+      body #typechoSidebar .l2-item a {
+        display: block !important;
+        padding: 8px 12px 8px 40px !important;
+        color: #cbd5e1 !important;
+        text-decoration: none !important;
+        font-size: 13px !important;
+        border-left: 4px solid transparent !important;
+        transition: color 0.1s, background 0.1s, border-left-color 0.1s;
+      }
+      html body .typecho-sidebar .l2-item a:hover,
+      body #typechoSidebar .l2-item a:hover {
+        color: #ffffff !important;
+        background-color: #333 !important;
+      }
+      html body .typecho-sidebar .l2-item.active a,
+      body #typechoSidebar .l2-item.active a {
+        color: #ffffff !important;
+        background-color: #2d4f63 !important;
+        border-left-color: #467b96 !important;
+        font-weight: 600 !important;
+      }
+
+      /* ========== 主内容区 ========== */
+      .typecho-main {
+        grid-area: main;
+        padding: 20px 28px;
+        min-width: 0;
+        overflow-x: auto;
+      }
+      .typecho-main .page-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 16px;
+        color: #1f2937;
+      }
+      .typecho-main .page-sub {
+        color: #6b7280;
+        font-size: 13px;
+        margin: -8px 0 16px;
+      }
+      .typecho-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+      }
+      .typecho-card + .typecho-card { margin-top: 16px; }
+      .typecho-card-head {
+        padding: 10px 16px;
+        border-bottom: 1px solid #eef0f1;
+        font-weight: 600;
+        color: #374151;
+        font-size: 14px;
+      }
+      .typecho-card-body { padding: 16px; }
+
+      .typecho-decap-view {
+        display: none;
+      }
+      .typecho-custom-view { display: block; }
+      body.route-decap .typecho-custom-view { display: none; }
+      body.route-decap .typecho-decap-view { display: block; }
+      body.route-decap .typecho-main { padding: 0; }
+      #nc-root, [data-reactroot], #root {
+        min-height: calc(100vh - 44px);
+      }
+
+      /* ========== 统计卡片 ========== */
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+      }
+      .stat-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 14px 16px;
+      }
+      .stat-card .label {
+        color: #6b7280; font-size: 12px; margin-bottom: 6px;
+      }
+      .stat-card .num {
+        font-size: 22px; font-weight: 700; color: #111827;
+      }
+
+      /* ========== 主题列表卡片（对齐 Typecho 截图） ========== */
+      .themes-subtabs {
+        display: flex; gap: 8px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 16px;
+      }
+      .themes-subtabs a {
+        display: inline-block; padding: 8px 12px;
+        color: #555; text-decoration: none;
+        border-bottom: 2px solid transparent;
+        font-size: 13px;
+      }
+      .themes-subtabs a.active {
+        color: #111;
+        border-bottom-color: #467b96;
+        font-weight: 600;
+      }
+      .theme-list { display: flex; flex-direction: column; gap: 14px; }
+      .theme-row {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 18px;
+        padding: 14px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        border-radius: 6px;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .theme-row:hover {
+        border-color: #467b96;
+        box-shadow: 0 2px 10px rgba(70,123,150,0.08);
+      }
+      .theme-screenshot {
+        width: 100%;
+        height: 200px;
+        background: #e9ecef;
+        color: #9ca3af;
+        display: flex; align-items: center; justify-content: center;
+        border: 1px solid #d1d5db;
+        background-size: cover; background-position: center;
+        font-size: 13px;
+        overflow: hidden;
+      }
+      .theme-detail .name {
+        font-size: 16px; font-weight: 700; color: #111827; margin: 0 0 6px;
+      }
+      .theme-detail .meta {
+        color: #6b7280; font-size: 12px; margin-bottom: 10px;
+      }
+      .theme-detail .desc {
+        color: #4b5563; font-size: 13px; line-height: 1.6; margin-bottom: 14px;
+        min-height: 40px;
+      }
+      .theme-detail .actions {
+        display: flex; gap: 8px; flex-wrap: wrap;
+      }
+      .btn {
+        display: inline-flex; align-items: center;
+        padding: 5px 12px; font-size: 13px;
+        border-radius: 4px; text-decoration: none;
+        border: 1px solid transparent; cursor: pointer;
+        background: #fff; color: #374151; border-color: #d1d5db;
+        transition: all 0.12s;
+        font-family: inherit;
+      }
+      .btn:hover { background: #f3f4f6; border-color: #9ca3af; color: #111; }
+      .btn-primary { background: #467b96; border-color: #467b96; color: #fff; }
+      .btn-primary:hover { background: #3a6781; border-color: #3a6781; color: #fff; }
+      .btn.btn-disabled, .btn:disabled {
+        background: #f3f4f6; color: #9ca3af; cursor: not-allowed; border-color: #e5e7eb;
+      }
+      .theme-row.active-theme {
+        background: #fff9db;
+        border-color: #fbbf24;
+      }
+      .theme-row.active-theme .theme-detail .name::after {
+        content: " (当前启用)"; color: #d97706; font-weight: 500; font-size: 12px; margin-left: 6px;
+      }
+
+      /* ========== 列表管理页面（分类/标签/文章） ========== */
+      .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        font-size: 13px;
+      }
+      .admin-table thead th {
+        text-align: left;
+        padding: 10px 12px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #fafafa;
+        color: #374151;
+        font-weight: 600;
+      }
+      .admin-table tbody td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #f3f4f6;
+        color: #374151;
+      }
+      .admin-table tbody tr:hover td { background: #f9fafb; }
+      .admin-table a { color: #2563eb; text-decoration: none; }
+      .admin-table a:hover { text-decoration: underline; }
+      .badge {
+        display: inline-block; padding: 2px 8px; border-radius: 999px;
+        background: #eef2ff; color: #4f46e5; font-size: 11px; margin-right: 4px;
+      }
+      .hint-box {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1e40af;
+        border-radius: 4px;
+        padding: 10px 14px;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      /* ========== 原来的 Decap 覆盖样式保留 ========== */
       :root,
       * {
         --nc-text: #1f2937 !important;
@@ -29,286 +337,131 @@
         --color-primary: #2563eb !important;
         --color-border: #e5e7eb !important;
       }
-
-      /* ========== 修复按钮/头部深色背景问题 ========== */
       button,
       [role="button"],
-      [class*="Button"],
-      [class*="button"],
-      [class*="Btn"],
-      [class*="btn"],
-      header button,
-      header [role="button"],
+      [class*="Button"], [class*="button"],
+      [class*="Btn"], [class*="btn"],
+      header button, header [role="button"],
       [class*="Header"] button,
       [class*="header"] button,
-      [class*="Toolbar"] button,
-      [class*="toolbar"] button,
-      [class*="Toggle"] button,
-      [class*="toggle"] button,
-      select,
-      [class*="Select"],
-      [class*="select"] {
+      [class*="Toolbar"] button, [class*="toolbar"] button,
+      [class*="Toggle"] button, select,
+      [class*="Select"], [class*="select"] {
         background-color: #ffffff !important;
         color: #1f2937 !important;
         border: 1px solid #d1d5db !important;
       }
-
       button:hover,
       [role="button"]:hover,
-      [class*="Button"]:hover,
-      [class*="button"]:hover,
-      [class*="Btn"]:hover,
-      [class*="btn"]:hover {
+      [class*="Button"]:hover, [class*="button"]:hover,
+      [class*="Btn"]:hover, [class*="btn"]:hover {
         background-color: #f3f4f6 !important;
       }
-
-      /* 修复头部/工具栏深色背景 */
-      header,
-      [class*="Header"],
-      [class*="header"],
-      [class*="Toolbar"],
-      [class*="toolbar"],
-      [class*="TopBar"],
-      [class*="top-bar"],
-      [class*="Topbar"],
-      [class*="NavBar"],
-      [class*="navbar"],
-      [class*="Nav-bar"] {
+      header, [class*="Header"], [class*="header"],
+      [class*="Toolbar"], [class*="toolbar"],
+      [class*="TopBar"], [class*="top-bar"], [class*="Topbar"],
+      [class*="NavBar"], [class*="navbar"], [class*="Nav-bar"] {
         background-color: #ffffff !important;
         border-bottom: 1px solid #e5e7eb !important;
         color: #1f2937 !important;
       }
-
-      /* 修复侧边栏深色背景 */
-      [class*="Sidebar"],
-      [class*="sidebar"],
-      [class*="SideBar"],
-      aside,
-      nav {
+      [class*="Sidebar"], [class*="sidebar"], [class*="SideBar"],
+      aside, nav {
         background-color: #f9fafb !important;
         color: #1f2937 !important;
         border-right: 1px solid #e5e7eb !important;
       }
-
-      /* ========== 修复文章列表标题可见性 ========== */
-      [class*="EntryListing"] h1,
-      [class*="EntryListing"] h2,
-      [class*="EntryListing"] h3,
-      [class*="EntryListing"] h4,
-      [class*="EntryListing"] h5,
-      [class*="EntryListing"] h6,
-      [class*="EntryListing"] span,
-      [class*="EntryListing"] p,
-      [class*="EntryListing"] div,
+      [class*="EntryListing"] h1, [class*="EntryListing"] h2, [class*="EntryListing"] h3,
+      [class*="EntryListing"] h4, [class*="EntryListing"] h5, [class*="EntryListing"] h6,
+      [class*="EntryListing"] span, [class*="EntryListing"] p, [class*="EntryListing"] div,
       [class*="EntryListing"] a,
-      [class*="ListItem"] h1,
-      [class*="ListItem"] h2,
-      [class*="ListItem"] h3,
-      [class*="ListItem"] h4,
-      [class*="ListItem"] h5,
-      [class*="ListItem"] h6,
-      [class*="ListItem"] span,
-      [class*="ListItem"] p,
-      [class*="ListItem"] div,
+      [class*="ListItem"] h1, [class*="ListItem"] h2, [class*="ListItem"] h3,
+      [class*="ListItem"] h4, [class*="ListItem"] h5, [class*="ListItem"] h6,
+      [class*="ListItem"] span, [class*="ListItem"] p, [class*="ListItem"] div,
       [class*="ListItem"] a,
-      [class*="entry-listing"] h1,
-      [class*="entry-listing"] h2,
-      [class*="entry-listing"] h3,
-      [class*="entry-listing"] span,
-      [class*="entry-listing"] p,
-      [class*="entry-listing"] a,
-      [class*="list-item"] h1,
-      [class*="list-item"] h2,
-      [class*="list-item"] h3,
-      [class*="list-item"] span,
-      [class*="list-item"] p,
-      [class*="list-item"] a {
+      [class*="entry-listing"] h1, [class*="entry-listing"] h2, [class*="entry-listing"] h3,
+      [class*="entry-listing"] span, [class*="entry-listing"] p, [class*="entry-listing"] a,
+      [class*="list-item"] h1, [class*="list-item"] h2, [class*="list-item"] h3,
+      [class*="list-item"] span, [class*="list-item"] p, [class*="list-item"] a {
         color: #1f2937 !important;
         opacity: 1 !important;
       }
-
-      /* ========== 列表项布局：标题左 + 日期右（基于JS拆分后的class） ========== */
-      /* 基础容器样式（不强制flex，避免破坏原有嵌套结构） */
       [class*="EntryListing"],
-      [class*="ListItem"],
-      [class*="entry-listing"],
-      [class*="list-item"],
-      [class*="EntryCard"],
-      [class*="entry-card"],
-      [class*="CardEntry"],
-      [class*="card-entry"] {
+      [class*="ListItem"], [class*="entry-listing"], [class*="list-item"],
+      [class*="EntryCard"], [class*="entry-card"],
+      [class*="CardEntry"], [class*="card-entry"] {
         background-color: #ffffff !important;
         padding: 12px 16px !important;
         border: 1px solid #e5e7eb !important;
         border-radius: 6px !important;
         margin-bottom: 8px !important;
       }
-
-      /* JS拆分后附加的flex行容器 */
       .entry-row-flex {
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        width: 100% !important;
-        gap: 16px !important;
+        display: flex !important; flex-direction: row !important;
+        justify-content: space-between !important; align-items: center !important;
+        width: 100% !important; gap: 16px !important;
       }
-
-      /* 拆分后的左侧标题 */
       .entry-title-left {
-        flex: 1 1 auto !important;
-        text-align: left !important;
-        color: #111827 !important;
-        font-weight: 500 !important;
-        font-size: 1rem !important;
-        line-height: 1.4 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
+        flex: 1 1 auto !important; text-align: left !important;
+        color: #111827 !important; font-weight: 500 !important;
+        font-size: 1rem !important; line-height: 1.4 !important;
+        overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important;
       }
-
-      /* 拆分后的右侧日期 */
       .entry-date-right {
-        flex: 0 0 auto !important;
-        text-align: right !important;
-        color: #6b7280 !important;
-        font-size: 0.875rem !important;
-        white-space: nowrap !important;
-        font-variant-numeric: tabular-nums !important;
+        flex: 0 0 auto !important; text-align: right !important;
+        color: #6b7280 !important; font-size: 0.875rem !important;
+        white-space: nowrap !important; font-variant-numeric: tabular-nums !important;
       }
-
-      /* 兜底：针对直接作为a子元素的span（table/list视图）也生效 */
-      [class*="EntryListing"] a,
-      [class*="ListItem"] a,
-      [class*="entry-listing"] a,
-      [class*="list-item"] a,
-      [class*="EntryCard"] a,
-      [class*="entry-card"] a {
-        width: 100% !important;
-        color: #1f2937 !important;
-        text-decoration: none !important;
+      [class*="EntryListing"] a, [class*="ListItem"] a,
+      [class*="entry-listing"] a, [class*="list-item"] a,
+      [class*="EntryCard"] a, [class*="entry-card"] a {
+        width: 100% !important; color: #1f2937 !important; text-decoration: none !important;
       }
-
-      /* ========== 链接颜色修复 ========== */
-      [class*="ListItem"] a,
-      [class*="EntryListing"] a,
-      [class*="list-item"] a,
-      [class*="entry-listing"] a {
-        color: #2563eb !important;
-      }
-
-      /* ========== 标准卡片和列表修复 ========== */
-      [class*="Card"] h2,
-      [class*="Card"] h3,
-      [class*="Card"] h4,
-      [class*="Card"] span,
-      [class*="Card"] p,
-      [class*="card"] h2,
-      [class*="card"] h3,
-      [class*="card"] span,
-      [class*="card"] p {
+      [class*="ListItem"] a, [class*="EntryListing"] a,
+      [class*="list-item"] a, [class*="entry-listing"] a { color: #2563eb !important; }
+      [class*="Card"] h2, [class*="Card"] h3, [class*="Card"] h4,
+      [class*="Card"] span, [class*="Card"] p,
+      [class*="card"] h2, [class*="card"] h3, [class*="card"] span, [class*="card"] p {
         color: #111827 !important;
       }
-
-      [class*="Card"],
-      [class*="card"] {
+      [class*="Card"], [class*="card"] {
         background-color: #ffffff !important;
       }
-
-      /* ========== 侧边栏和导航文字修复 ========== */
-      [class*="Sidebar"] span,
-      [class*="Sidebar"] a,
-      [class*="Sidebar"] h1,
-      [class*="Sidebar"] h2,
-      [class*="Sidebar"] h3,
-      [class*="sidebar"] span,
-      [class*="sidebar"] a,
-      [class*="sidebar"] h1,
-      [class*="sidebar"] h2 {
+      [class*="Sidebar"] span, [class*="Sidebar"] a,
+      [class*="Sidebar"] h1, [class*="Sidebar"] h2, [class*="Sidebar"] h3,
+      [class*="sidebar"] span, [class*="sidebar"] a,
+      [class*="sidebar"] h1, [class*="sidebar"] h2 {
         color: #374151 !important;
       }
-
-      /* ========== 集合列表修复 ========== */
-      a[class*="Collection"],
-      li[class*="Collection"] span,
-      li[class*="Collection"] h2,
-      [class*="entries"] a,
-      [class*="entries"] h2,
-      [class*="entries"] h3,
-      [class*="entries"] span,
-      [class*="Entries"] a,
-      [class*="Entries"] h2,
-      [class*="Entries"] h3,
-      [class*="Entries"] span {
+      a[class*="Collection"], li[class*="Collection"] span, li[class*="Collection"] h2,
+      [class*="entries"] a, [class*="entries"] h2, [class*="entries"] h3, [class*="entries"] span,
+      [class*="Entries"] a, [class*="Entries"] h2, [class*="Entries"] h3, [class*="Entries"] span {
         color: #111827 !important;
       }
-
-      /* ========== 表单控件修复 ========== */
-      [data-slate-editor],
-      [role="textbox"],
-      label,
-      input,
-      textarea,
-      select,
-      option {
-        color: #111827 !important;
-        background-color: #ffffff !important;
+      [data-slate-editor], [role="textbox"], label, input, textarea, select, option {
+        color: #111827 !important; background-color: #ffffff !important;
       }
-
-      input,
-      textarea,
-      select {
-        border: 1px solid #d1d5db !important;
+      input, textarea, select { border: 1px solid #d1d5db !important; }
+      main *, section *, article * { color: inherit; }
+      main, section, article, body {
+        color: #1f2937 !important; background-color: #f6f6f3 !important;
       }
-
-      /* ========== 主体颜色继承修复 ========== */
-      main *,
-      section *,
-      article * {
-        color: inherit;
-      }
-
-      main,
-      section,
-      article,
-      body {
-        color: #1f2937 !important;
-        background-color: #f3f4f6 !important;
-      }
-
-      /* ========== CSS-in-JS 类名覆盖 ========== */
       [class*="css-"] {
-        color: #1f2937 !important;
-        background-color: transparent !important;
+        color: #1f2937 !important; background-color: transparent !important;
       }
-
-      /* 修复任何深色背景的div（如按钮、状态块） */
-      [style*="background-color: rgb("],
-      [style*="background-color:#"],
-      [style*="background: rgb("],
-      [style*="background:#"] {
+      [style*="background-color: rgb("], [style*="background-color:#"],
+      [style*="background: rgb("], [style*="background:#"] {
         background-color: #ffffff !important;
       }
-
-      /* ========== 紧凑行布局（类似目录列表） ========== */
-      /* 先把外层卡片/列表项改成无边框、无间距的紧凑行 */
-      [class*="EntryListing"],
-      [class*="entry-listing"],
-      [class*="EntriesList"],
-      [class*="entries-list"] {
+      [class*="EntryListing"], [class*="entry-listing"],
+      [class*="EntriesList"], [class*="entries-list"] {
         background-color: #ffffff !important;
       }
-
-      [class*="EntryListing"] > *,
-      [class*="entry-listing"] > *,
-      [class*="ListItem"],
-      [class*="list-item"],
-      [class*="EntryCard"],
-      [class*="entry-card"],
-      [class*="CardEntry"],
-      [class*="card-entry"],
-      [class*="EntryRow"],
-      [class*="entry-row"] {
+      [class*="EntryListing"] > *, [class*="entry-listing"] > *,
+      [class*="ListItem"], [class*="list-item"],
+      [class*="EntryCard"], [class*="entry-card"],
+      [class*="CardEntry"], [class*="card-entry"],
+      [class*="EntryRow"], [class*="entry-row"] {
         background-color: transparent !important;
         padding: 6px 4px !important;
         border: none !important;
@@ -317,112 +470,135 @@
         box-shadow: none !important;
         border-bottom: 1px dashed #9ca3af !important;
       }
-
-      [class*="ListItem"]:last-child,
-      [class*="list-item"]:last-child,
-      [class*="EntryCard"]:last-child,
-      [class*="entry-card"]:last-child {
+      [class*="ListItem"]:last-child, [class*="list-item"]:last-child,
+      [class*="EntryCard"]:last-child, [class*="entry-card"]:last-child {
         border-bottom: none !important;
       }
-
-      /* 行内 a 标签占满宽度 */
-      [class*="ListItem"] a,
-      [class*="list-item"] a,
-      [class*="EntryCard"] a,
-      [class*="entry-card"] a,
-      [class*="EntryListing"] a,
-      [class*="entry-listing"] a {
-        width: 100% !important;
-        display: block !important;
-        padding: 0 !important;
-        color: #111827 !important;
-        text-decoration: none !important;
+      [class*="ListItem"] a, [class*="list-item"] a,
+      [class*="EntryCard"] a, [class*="entry-card"] a,
+      [class*="EntryListing"] a, [class*="entry-listing"] a {
+        width: 100% !important; display: block !important;
+        padding: 0 !important; color: #111827 !important; text-decoration: none !important;
       }
-
-      /* ========== 高优先级：拆分后的标题+日期 左右对齐 ========== */
-      body .entry-row-flex,
-      html body .entry-row-flex,
-      [class*="EntryListing"] .entry-row-flex,
-      [class*="entry-listing"] .entry-row-flex,
-      [class*="ListItem"] .entry-row-flex,
-      [class*="list-item"] .entry-row-flex,
-      [class*="EntryCard"] .entry-row-flex,
-      [class*="entry-card"] .entry-row-flex {
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: space-between !important;
-        align-items: baseline !important;
-        width: 100% !important;
-        gap: 24px !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
-        background: transparent !important;
+      body .entry-row-flex, html body .entry-row-flex,
+      [class*="EntryListing"] .entry-row-flex, [class*="entry-listing"] .entry-row-flex,
+      [class*="ListItem"] .entry-row-flex, [class*="list-item"] .entry-row-flex,
+      [class*="EntryCard"] .entry-row-flex, [class*="entry-card"] .entry-row-flex {
+        display: flex !important; flex-direction: row !important;
+        justify-content: space-between !important; align-items: baseline !important;
+        width: 100% !important; gap: 24px !important;
+        padding: 0 !important; margin: 0 !important;
+        border: none !important; background: transparent !important;
       }
-
-      /* 左侧标题 */
-      body .entry-row-flex .entry-title-left,
-      html body .entry-row-flex .entry-title-left,
-      [class*="EntryListing"] .entry-title-left,
-      [class*="entry-listing"] .entry-title-left,
-      [class*="ListItem"] .entry-title-left,
-      [class*="list-item"] .entry-title-left,
-      [class*="EntryCard"] .entry-title-left,
-      [class*="entry-card"] .entry-title-left {
-        flex: 1 1 auto !important;
-        text-align: left !important;
-        color: #111827 !important;
-        font-weight: 400 !important;
-        font-size: 1rem !important;
-        line-height: 1.8 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
+      body .entry-row-flex .entry-title-left, html body .entry-row-flex .entry-title-left,
+      [class*="EntryListing"] .entry-title-left, [class*="entry-listing"] .entry-title-left,
+      [class*="ListItem"] .entry-title-left, [class*="list-item"] .entry-title-left,
+      [class*="EntryCard"] .entry-title-left, [class*="entry-card"] .entry-title-left {
+        flex: 1 1 auto !important; text-align: left !important; color: #111827 !important;
+        font-weight: 400 !important; font-size: 1rem !important; line-height: 1.8 !important;
+        overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important;
         display: inline-block !important;
       }
-
-      /* 右侧日期 */
-      body .entry-row-flex .entry-date-right,
-      html body .entry-row-flex .entry-date-right,
-      [class*="EntryListing"] .entry-date-right,
-      [class*="entry-listing"] .entry-date-right,
-      [class*="ListItem"] .entry-date-right,
-      [class*="list-item"] .entry-date-right,
-      [class*="EntryCard"] .entry-date-right,
-      [class*="entry-card"] .entry-date-right {
-        flex: 0 0 auto !important;
-        text-align: right !important;
-        color: #6b7280 !important;
-        font-size: 0.9rem !important;
-        font-weight: 400 !important;
-        white-space: nowrap !important;
-        font-variant-numeric: tabular-nums !important;
-        display: inline-block !important;
-        line-height: 1.8 !important;
+      body .entry-row-flex .entry-date-right, html body .entry-row-flex .entry-date-right,
+      [class*="EntryListing"] .entry-date-right, [class*="entry-listing"] .entry-date-right,
+      [class*="ListItem"] .entry-date-right, [class*="list-item"] .entry-date-right,
+      [class*="EntryCard"] .entry-date-right, [class*="entry-card"] .entry-date-right {
+        flex: 0 0 auto !important; text-align: right !important; color: #6b7280 !important;
+        font-size: 0.9rem !important; font-weight: 400 !important;
+        white-space: nowrap !important; font-variant-numeric: tabular-nums !important;
+        display: inline-block !important; line-height: 1.8 !important;
       }
     </style>
   </head>
-  <body>
+  <body class="route-custom">
+
+    <!-- ========== Typecho 布局容器 ========== -->
+    <div class="typecho-layout">
+
+      <!-- 顶部 Logo 栏 -->
+      <div class="typecho-topbar">
+        <div class="brand">
+          <span class="logo">B</span>
+          <span>Blog 管理后台</span>
+        </div>
+        <div class="toplinks">
+          <a href="/" target="_blank">查看站点</a>
+          <a href="/admin/config.yml" target="_blank">配置</a>
+        </div>
+      </div>
+
+      <!-- 左侧菜单 -->
+      <aside class="typecho-sidebar" id="typechoSidebar">
+        <!-- 控制台 -->
+        <div class="l1-group" data-l1="dashboard">
+          <div class="l1-item">控制台</div>
+          <ul class="l2-list">
+            <li class="l2-item" data-route="dashboard-summary" data-l1="dashboard"><a href="#dashboard-summary">概要</a></li>
+            <li class="l2-item" data-route="dashboard-profile" data-l1="dashboard"><a href="#dashboard-profile">个人设置</a></li>
+            <li class="l2-item" data-route="dashboard-plugins" data-l1="dashboard"><a href="#dashboard-plugins">插件</a></li>
+            <li class="l2-item" data-route="dashboard-appearance" data-l1="dashboard"><a href="#dashboard-appearance">外观</a></li>
+            <li class="l2-item" data-route="dashboard-backup" data-l1="dashboard"><a href="#dashboard-backup">备份</a></li>
+          </ul>
+        </div>
+        <!-- 撰写 -->
+        <div class="l1-group" data-l1="write">
+          <div class="l1-item">撰写</div>
+          <ul class="l2-list">
+            <li class="l2-item" data-route="decap:#/collections/posts/new" data-l1="write"><a href="#write-post">撰写文章</a></li>
+            <li class="l2-item" data-route="decap:#/collections/pages/new" data-l1="write"><a href="#write-page">创建页面</a></li>
+          </ul>
+        </div>
+        <!-- 管理 -->
+        <div class="l1-group" data-l1="manage">
+          <div class="l1-item">管理</div>
+          <ul class="l2-list">
+            <li class="l2-item" data-route="decap:#/collections/posts" data-l1="manage"><a href="#manage-posts">文章</a></li>
+            <li class="l2-item" data-route="decap:#/collections/pages" data-l1="manage"><a href="#manage-pages">独立页面</a></li>
+            <li class="l2-item" data-route="manage-comments" data-l1="manage"><a href="#manage-comments">评论</a></li>
+            <li class="l2-item" data-route="manage-categories" data-l1="manage"><a href="#manage-categories">分类</a></li>
+            <li class="l2-item" data-route="manage-tags" data-l1="manage"><a href="#manage-tags">标签</a></li>
+            <li class="l2-item" data-route="decap:#/media-library" data-l1="manage"><a href="#manage-files">文件</a></li>
+            <li class="l2-item" data-route="manage-users" data-l1="manage"><a href="#manage-users">用户</a></li>
+          </ul>
+        </div>
+        <!-- 设置 -->
+        <div class="l1-group" data-l1="settings">
+          <div class="l1-item">设置</div>
+          <ul class="l2-list">
+            <li class="l2-item" data-route="decap:#/collections/settings/entries/site" data-l1="settings"><a href="#settings-basic">基本</a></li>
+            <li class="l2-item" data-route="settings-comment" data-l1="settings"><a href="#settings-comment">评论</a></li>
+            <li class="l2-item" data-route="decap:#/collections/settings/entries/theme_greenleaf" data-l1="settings"><a href="#settings-reading">阅读</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- 主内容区 -->
+      <main class="typecho-main">
+        <!-- 自定义视图（大部分非 Decap 原生页面走这里） -->
+        <div class="typecho-custom-view" id="typechoCustomView"></div>
+
+        <!-- Decap CMS 原生视图（#nc-root 由 Decap 脚本挂载） -->
+        <div class="typecho-decap-view" id="typechoDecapView">
+          <div id="nc-root"></div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Decap CMS 核心脚本 -->
     <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
+
     <script>
+      /* ==================== 1. R2 媒体库（原脚本保留） ==================== */
       async function uploadToR2(file, uploadUrl) {
         const formData = new FormData();
         formData.append('file', file, file.name);
-
-        const response = await fetch(uploadUrl, {
-          method: 'POST',
-          body: formData,
-        });
-
+        const response = await fetch(uploadUrl, { method: 'POST', body: formData });
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(errorText || 'Upload failed');
         }
-
         return response.json();
       }
-
-      // 注册 R2 媒体库
       if (window.CMS && typeof window.CMS.registerMediaLibrary === 'function') {
         window.CMS.registerMediaLibrary({
           name: 'r2',
@@ -433,33 +609,16 @@
             input.type = 'file';
             input.accept = options.accept || 'image/*';
             input.multiple = true;
-
             input.addEventListener('change', async () => {
               const files = Array.from(input.files || []);
-              if (!files.length) {
-                onClose();
-                return;
-              }
-
+              if (!files.length) { onClose(); return; }
               try {
                 const uploaded = [];
-
                 for (const file of files) {
                   const result = await uploadToR2(file, uploadUrl);
-
-                  if (typeof result.url !== 'string') {
-                    throw new Error('Invalid upload response');
-                  }
-
-                  uploaded.push({
-                    id: result.url,
-                    name: file.name,
-                    url: result.url,
-                    display_url: result.url,
-                    path: result.url,
-                  });
+                  if (typeof result.url !== 'string') throw new Error('Invalid upload response');
+                  uploaded.push({ id: result.url, name: file.name, url: result.url, display_url: result.url, path: result.url });
                 }
-
                 handleInsertMedia(uploaded);
               } catch (error) {
                 console.error('R2 upload error', error);
@@ -468,26 +627,20 @@
                 onClose();
               }
             });
-
             input.click();
-            return {
-              open: () => input.click(),
-            };
+            return { open: () => input.click() };
           },
         });
       }
 
-      // 加载中文语言包
+      /* ==================== 2. 中文语言包（原脚本保留） ==================== */
       if (window.CMS && typeof window.CMS.registerLocale === 'function') {
         fetch('https://unpkg.com/decap-cms@^3/dist/locales/zh.js')
           .then(res => res.text())
           .then(js => {
-            // 执行语言包脚本
             const script = document.createElement('script');
             script.textContent = js;
             document.body.appendChild(script);
-            
-            // 注册语言
             setTimeout(() => {
               if (window.CMS_LOCALE_ZH) {
                 window.CMS.registerLocale('zh', window.CMS_LOCALE_ZH);
@@ -497,7 +650,668 @@
           .catch(err => console.warn('Failed to load Chinese locale:', err));
       }
 
-      // ========== 拆分文章列表的 summary 字符串：标题左 | 日期右 ==========
+      /* ==================== 3. 菜单与路由系统 ==================== */
+      (function () {
+        const SITE_TITLE = 'Blog 管理后台';
+        const DECAP_PREFIX = 'decap:';
+
+        // 路由元信息（供左侧菜单激活 & 页面标题 & 视图渲染）
+        const ROUTE_META = {
+          'dashboard-summary':    { l1: 'dashboard', title: '概要',  pageTitle: '控制台', pageSub: '站点数据总览' },
+          'dashboard-profile':    { l1: 'dashboard', title: '个人设置', pageTitle: '控制台 → 个人设置', pageSub: '修改作者名和简介（实际由站点设置表单维护）' },
+          'dashboard-plugins':    { l1: 'dashboard', title: '插件', pageTitle: '控制台 → 插件', pageSub: 'Hexo 插件不在前端管理，请在 package.json 中安装/卸载' },
+          'dashboard-appearance': { l1: 'dashboard', title: '外观', pageTitle: '控制台 → 外观', pageSub: '主题列表与启用设置' },
+          'dashboard-backup':     { l1: 'dashboard', title: '备份', pageTitle: '控制台 → 备份', pageSub: '备份与 Git 历史' },
+          'manage-comments':      { l1: 'manage',    title: '评论', pageTitle: '管理 → 评论', pageSub: 'Hexo 为静态博客，评论由第三方系统托管' },
+          'manage-categories':    { l1: 'manage',    title: '分类', pageTitle: '管理 → 分类', pageSub: '按文章 frontmatter 中的 categories 字段统计' },
+          'manage-tags':          { l1: 'manage',    title: '标签', pageTitle: '管理 → 标签', pageSub: '按文章 frontmatter 中的 tags 字段统计' },
+          'manage-users':         { l1: 'manage',    title: '用户', pageTitle: '管理 → 用户', pageSub: '单用户 Hexo 站点' },
+          'settings-comment':     { l1: 'settings',  title: '评论', pageTitle: '设置 → 评论', pageSub: '评论系统的配置参数' },
+        };
+
+        function normalizeHashBody(body) {
+          if (typeof body !== 'string') return '';
+          while (body.startsWith('/')) body = body.substring(1);
+          while (body.startsWith('#')) body = body.substring(1);
+          return body;
+        }
+
+        function hashIsDecapNative(hash) {
+          const body = normalizeHashBody(hash);
+          return body.startsWith('collections/') || body.startsWith('media-library') || body.startsWith('edit/') || body.startsWith('workflow/') || body.startsWith('search');
+        }
+
+        const SHORTCUT_DECAP_MAP = {
+          'write-post':       { type: 'decap', target: '#/collections/posts/new',                              logical: 'decap:write-post' },
+          'write-page':       { type: 'decap', target: '#/collections/pages/new',                              logical: 'decap:write-page' },
+          'manage-posts':     { type: 'decap', target: '#/collections/posts',                                  logical: 'decap:manage-posts' },
+          'manage-pages':     { type: 'decap', target: '#/collections/pages',                                  logical: 'decap:manage-pages' },
+          'manage-files':     { type: 'decap', target: '#/media-library',                                      logical: 'decap:manage-files' },
+          'settings-basic':   { type: 'decap', target: '#/collections/settings/entries/site',                  logical: 'decap:settings-basic' },
+          'settings-reading': { type: 'decap', target: '#/collections/settings/entries/theme_greenleaf',       logical: 'decap:settings-reading' },
+        };
+
+        function parseHash(hash) {
+          if (!hash) hash = location.hash || '#dashboard-summary';
+          let body = normalizeHashBody(hash);
+
+          if (body.startsWith(DECAP_PREFIX)) {
+            const tail = body.substring(DECAP_PREFIX.length);
+            let target = tail;
+            if (!target.startsWith('#')) target = '#' + (target.startsWith('/') ? target : ('/' + target));
+            return { type: 'decap', target: target, logical: null };
+          }
+
+          if (body.startsWith('collections/') || body.startsWith('media-library') || body.startsWith('edit/') || body.startsWith('workflow/') || body.startsWith('search')) {
+            const target = '#' + (hash.startsWith('#/') ? '/' : '') + body;
+            let matchedShortcut = null;
+            Object.keys(SHORTCUT_DECAP_MAP).forEach(k => {
+              const t = normalizeHashBody(SHORTCUT_DECAP_MAP[k].target || '');
+              if (t && (body === t || body.indexOf(t) === 0 || t.indexOf(body) === 0)) {
+                if (!matchedShortcut) matchedShortcut = k;
+              }
+            });
+            return {
+              type: 'decap',
+              target: '#' + (body.startsWith('media-library') ? '' : '/') + body,
+              logical: matchedShortcut ? ('decap:' + matchedShortcut) : ('decap:native-' + body.substring(0, 20))
+            };
+          }
+
+          if (body.length === 0 || body === 'index' || body === 'dashboard' || body === 'admin' || body === 'dashboard-summary') {
+            return { type: 'custom', target: null, logical: 'dashboard-summary' };
+          }
+
+          if (ROUTE_META[body]) {
+            return { type: 'custom', target: null, logical: body };
+          }
+
+          if (SHORTCUT_DECAP_MAP[body]) {
+            return SHORTCUT_DECAP_MAP[body];
+          }
+
+          return { type: 'custom', target: null, logical: 'dashboard-summary' };
+        }
+
+        function updateMenuActive(parsed) {
+          const sidebar = document.getElementById('typechoSidebar');
+          if (!sidebar) return;
+
+          sidebar.querySelectorAll('.l1-group').forEach(g => g.classList.remove('active'));
+          sidebar.querySelectorAll('.l2-item').forEach(i => i.classList.remove('active'));
+
+          let l1 = null;
+          let l2Route = null;
+
+          if (parsed.type === 'custom' && parsed.logical && ROUTE_META[parsed.logical]) {
+            l1 = ROUTE_META[parsed.logical].l1;
+            l2Route = parsed.logical;
+          } else if (parsed.type === 'decap') {
+            const logical = parsed.logical || '';
+            let shortcut = null;
+            if (logical && logical.startsWith('decap:')) {
+              shortcut = logical.substring('decap:'.length);
+            }
+            if (shortcut && SHORTCUT_DECAP_MAP[shortcut]) {
+              if (shortcut.startsWith('write')) l1 = 'write';
+              else if (shortcut.startsWith('manage')) l1 = 'manage';
+              else if (shortcut.startsWith('settings')) l1 = 'settings';
+              l2Route = shortcut;
+            } else {
+              const target = parsed.target || '';
+              let matchedShortcut = null;
+              Object.keys(SHORTCUT_DECAP_MAP).forEach(k => {
+                const t = SHORTCUT_DECAP_MAP[k].target || '';
+                if (t && (target === t || target.indexOf(t) === 0 || t.indexOf(target) === 0)) {
+                  if (!matchedShortcut) matchedShortcut = k;
+                }
+              });
+              if (matchedShortcut) {
+                if (matchedShortcut.startsWith('write')) l1 = 'write';
+                else if (matchedShortcut.startsWith('manage')) l1 = 'manage';
+                else if (matchedShortcut.startsWith('settings')) l1 = 'settings';
+                l2Route = matchedShortcut;
+              } else {
+                if (target.indexOf('#/collections/posts') === 0) { l1 = 'manage'; l2Route = 'manage-posts'; }
+                else if (target.indexOf('#/collections/pages') === 0) { l1 = 'manage'; l2Route = 'manage-pages'; }
+                else if (target.indexOf('#/media-library') === 0) { l1 = 'manage'; l2Route = 'manage-files'; }
+                else if (target.indexOf('#/collections/settings/entries/site') === 0) { l1 = 'settings'; l2Route = 'settings-basic'; }
+                else if (target.indexOf('#/collections/settings/entries/theme_greenleaf') === 0) { l1 = 'settings'; l2Route = 'settings-reading'; }
+                else if (target.indexOf('#/collections/settings') === 0) { l1 = 'settings'; l2Route = 'settings-basic'; }
+                else { l1 = 'manage'; }
+              }
+            }
+          }
+
+          if (!l1) l1 = 'dashboard';
+
+          if (l2Route) {
+            const l2El = sidebar.querySelector('.l2-item[data-route="' + l2Route + '"]');
+            if (l2El) l2El.classList.add('active');
+            const l1FromL2 = l2El ? l2El.getAttribute('data-l1') : null;
+            if (l1FromL2) l1 = l1FromL2;
+          }
+          if (!l2Route) {
+            const group = sidebar.querySelector('.l1-group[data-l1="' + l1 + '"]');
+            if (group) {
+              const firstL2 = group.querySelector('.l2-item');
+              if (firstL2) firstL2.classList.add('active');
+            }
+          }
+
+          const gEl = sidebar.querySelector('.l1-group[data-l1="' + l1 + '"]');
+          if (gEl) gEl.classList.add('active');
+        }
+
+        function setPageTitleAndCrumb(parsed) {
+          let title = SITE_TITLE, h1 = SITE_TITLE, sub = '';
+          if (parsed.type === 'custom' && ROUTE_META[parsed.logical]) {
+            const meta = ROUTE_META[parsed.logical];
+            title = meta.pageTitle + ' · ' + SITE_TITLE;
+            h1 = meta.pageTitle;
+            sub = meta.pageSub || '';
+          } else {
+            // Decap 原生页面
+            let label = 'Decap CMS 内容管理';
+            if (parsed.type === 'decap') {
+              const t = parsed.target || '';
+              if (t.includes('collections/posts/new')) label = '撰写文章';
+              else if (t.includes('collections/pages/new')) label = '创建页面';
+              else if (t.includes('collections/posts')) label = '管理文章';
+              else if (t.includes('collections/pages')) label = '独立页面管理';
+              else if (t.includes('media-library')) label = '文件 / 媒体库';
+              else if (t.includes('entries/site')) label = '站点基本设置';
+              else if (t.includes('entries/theme_greenleaf')) label = '主题配置 / 阅读设置';
+            }
+            title = label + ' · ' + SITE_TITLE;
+            h1 = label;
+            sub = '由 Decap CMS 原生视图渲染';
+          }
+          document.title = title;
+
+          const cv = document.getElementById('typechoCustomView');
+          if (!cv) return;
+          let html = '<h1 class="page-title">' + escapeHtml(h1) + '</h1>';
+          if (sub) html += '<p class="page-sub">' + escapeHtml(sub) + '</p>';
+          cv.innerHTML = html;
+        }
+
+        function escapeHtml(s) {
+          if (typeof s !== 'string') return s;
+          return s
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        /* ========== 辅助：读取当前主题（从 _config.yml 中 theme 字段） ========== */
+        let CURRENT_THEME = 'greenleaf';
+        let SITE_INFO = { title: '', author: '', subtitle: '', description: '' };
+        let POSTS_INFO = []; // [{title, date, categories:[], tags:[], path}]
+
+        // 尝试解析 Decap 发布好的文章页（公开访问）来汇总 posts / categories / tags
+        async function loadPublicIndex() {
+          try {
+            const res = await fetch('/index.html', { cache: 'no-store' });
+            if (!res.ok) return;
+            const text = await res.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const titleEl = doc.querySelector('h1, h2, [class*="title"]');
+            if (titleEl) SITE_INFO.title = titleEl.textContent.trim().substring(0, 80);
+          } catch (e) {}
+        }
+
+        // 尝试读取文章 Markdown（Decap CMS 本地后端的 entries API 也可用，这里做一下兜底）
+        async function loadPostsInfo() {
+          const posts = [];
+          const known = [
+            'hello-world-1.md',
+            '1111111111111111111111.md',
+            '1111111111111111111111-1.md',
+            '测试.md'
+          ];
+          for (const f of known) {
+            try {
+              const r = await fetch('/' + encodeURI('_posts/' + f));
+              if (r.ok) {
+                const txt = await r.text();
+                posts.push(parsePostMarkdown(txt, f));
+              }
+            } catch (e) {}
+          }
+          POSTS_INFO = posts;
+          return posts;
+        }
+        function parsePostMarkdown(txt, filename) {
+          const out = { title: (filename || '').replace(/\.md$/i, ''), date: '', categories: [], tags: [] };
+          const m = txt.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
+          if (!m) return out;
+          const fm = m[1];
+          const titleMatch = fm.match(/^title:\s*(.+)$/m);
+          if (titleMatch) out.title = stripYamlStr(titleMatch[1]);
+          const dateMatch = fm.match(/^date:\s*(.+)$/m);
+          if (dateMatch) out.date = stripYamlStr(dateMatch[1]);
+          const catsLine = fm.match(/^categories:\s*(.+)$/m);
+          if (catsLine) {
+            const raw = stripYamlStr(catsLine[1]);
+            if (raw) out.categories = [raw];
+          }
+          const tagLines = fm.match(/^tags:\s*\[([^\]]*)\]/m);
+          if (tagLines) {
+            out.tags = tagLines[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+          } else {
+            const tagBlock = fm.match(/^tags:[\s\S]*?(?=\n\w+:|$)/m);
+            if (tagBlock) {
+              tagBlock[0].split('\n').slice(1).forEach(l => {
+                const lm = l.match(/^\s*-\s*(.+)$/);
+                if (lm) out.tags.push(stripYamlStr(lm[1]));
+              });
+            }
+          }
+          return out;
+        }
+        function stripYamlStr(s) { return (s || '').trim().replace(/^['"]|['"]$/g, ''); }
+
+        function collectCategories(posts) {
+          const map = {};
+          (posts || POSTS_INFO).forEach(p => {
+            (p.categories || []).forEach(c => { if (!c) return; map[c] = (map[c] || 0) + 1; });
+          });
+          return Object.keys(map).sort().map(name => ({ name, count: map[name] }));
+        }
+        function collectTags(posts) {
+          const map = {};
+          (posts || POSTS_INFO).forEach(p => {
+            (p.tags || []).forEach(t => { if (!t) return; map[t] = (map[t] || 0) + 1; });
+          });
+          return Object.keys(map).sort().map(name => ({ name, count: map[name] }));
+        }
+
+        /* ========== 主题列表数据 ========== */
+        const DEFAULT_THEME_LIST = [
+          { key: 'greenleaf', name: 'greenleaf', author: 'GreenLeaf', version: '1.0.0', description: '清新简洁的薄荷绿博客主题', screenshot: '' },
+          { key: 'landscape', name: 'Landscape', author: 'Hexo Team', version: '1.0.0', description: 'Hexo 默认主题，Just another official theme', screenshot: '' }
+        ];
+        async function loadThemeList() {
+          try {
+            const r = await fetch('/_data/theme_list.yml?_=' + Date.now());
+            if (r.ok) {
+              const txt = await r.text();
+              const parsed = parseSimpleThemeYaml(txt);
+              if (parsed && parsed.length) return parsed;
+            }
+          } catch (e) {}
+          return DEFAULT_THEME_LIST.slice();
+        }
+        function parseSimpleThemeYaml(txt) {
+          const lines = (txt || '').split(/\r?\n/);
+          const themes = [];
+          let cur = null;
+          const re = /^\s*-\s*key:\s*(.+?)\s*$/;
+          const reKeyVal = /^\s{2,}(\w+):\s*(.*?)\s*$/;
+          lines.forEach(l => {
+            const m1 = l.match(re);
+            if (m1) {
+              if (cur) themes.push(cur);
+              cur = { key: stripYamlStr(m1[1]), name: '', author: '', version: '', description: '', screenshot: '' };
+              return;
+            }
+            if (!cur) return;
+            const m2 = l.match(reKeyVal);
+            if (m2) {
+              const k = m2[1].toLowerCase();
+              const v = stripYamlStr(m2[2]);
+              if (k in cur) cur[k] = v;
+            }
+          });
+          if (cur) themes.push(cur);
+          return themes;
+        }
+        async function loadCurrentTheme() {
+          try {
+            const r = await fetch('/admin/config.yml?_=' + Date.now());
+            if (!r.ok) return;
+            const cfg = await r.text();
+            const m = cfg.match(/^\s*theme:\s*["']?([^\s"',#]+)["']?\s*$/m);
+            if (m) CURRENT_THEME = m[1];
+          } catch (e) {}
+        }
+
+        /* ========== 自定义视图渲染 ========== */
+        async function renderCustom(logical) {
+          const cv = document.getElementById('typechoCustomView');
+          if (!cv) return;
+          const meta = ROUTE_META[logical];
+          let html = '<h1 class="page-title">' + escapeHtml(meta ? meta.pageTitle : '概要') + '</h1>';
+          if (meta && meta.pageSub) html += '<p class="page-sub">' + escapeHtml(meta.pageSub) + '</p>';
+
+          switch (logical) {
+            case 'dashboard-summary': {
+              const posts = (POSTS_INFO.length ? POSTS_INFO : await loadPostsInfo());
+              const cats = collectCategories(posts);
+              const tags = collectTags(posts);
+              const recent = posts.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 5);
+              html += `<div class="stat-grid">
+                <div class="stat-card"><div class="label">文章总数</div><div class="num">${posts.length}</div></div>
+                <div class="stat-card"><div class="label">分类数</div><div class="num">${cats.length}</div></div>
+                <div class="stat-card"><div class="label">标签数</div><div class="num">${tags.length}</div></div>
+                <div class="stat-card"><div class="label">当前主题</div><div class="num">${escapeHtml(CURRENT_THEME)}</div></div>
+              </div>`;
+              html += `<div class="typecho-card" style="margin-top:20px">
+                <div class="typecho-card-head">近期文章</div>
+                <div class="typecho-card-body">`;
+              if (recent.length === 0) {
+                html += '<div class="hint-box">暂无文章。到「撰写 → 撰写文章」创建第一篇。</div>';
+              } else {
+                html += '<table class="admin-table"><thead><tr><th style="width:40%">标题</th><th style="width:25%">分类</th><th style="width:20%">标签</th><th style="width:15%">日期</th></tr></thead><tbody>';
+                recent.forEach(p => {
+                  html += `<tr>
+                    <td>${escapeHtml(p.title)}</td>
+                    <td>${(p.categories || []).map(c => '<span class="badge">' + escapeHtml(c) + '</span>').join('') || '—'}</td>
+                    <td>${(p.tags || []).map(t => '<span class="badge">' + escapeHtml(t) + '</span>').join('') || '—'}</td>
+                    <td>${escapeHtml(p.date ? String(p.date).substring(0, 16) : '')}</td>
+                  </tr>`;
+                });
+                html += '</tbody></table>';
+              }
+              html += '</div></div>';
+              break;
+            }
+            case 'dashboard-profile': {
+              html += `<div class="hint-box" style="margin-bottom:16px">
+                作者名 / 副标题 / 简介等个人信息由「站点基本设置」维护。点击下方按钮直接跳转到对应表单修改。
+              </div>
+              <div class="typecho-card">
+                <div class="typecho-card-head">快捷操作</div>
+                <div class="typecho-card-body">
+                  <a href="#settings-basic" class="btn btn-primary">前往基本设置</a>
+                  <a href="#settings-reading" class="btn">前往主题配置（作者简介侧栏显示）</a>
+                </div>
+              </div>`;
+              break;
+            }
+            case 'dashboard-plugins': {
+              html += `<div class="typecho-card">
+                <div class="typecho-card-head">Hexo 插件管理</div>
+                <div class="typecho-card-body">
+                  <div class="hint-box">
+                    Hexo 为静态站点生成器，插件通过 npm 安装/卸载，并在 <code>_config.yml</code> 中配置。本页面仅作说明。<br>
+                    常用命令：<code>npm install hexo-generator-search --save</code>
+                  </div>
+                </div>
+              </div>`;
+              break;
+            }
+            case 'dashboard-appearance': {
+              const themes = await loadThemeList();
+              html += `<div class="themes-subtabs">
+                <a href="#" class="active">可以使用的外观</a>
+                <a href="#settings-basic">编辑当前外观</a>
+                <a href="#settings-reading">设置外观</a>
+              </div>`;
+              html += '<div class="theme-list">';
+              themes.forEach(t => {
+                const active = t.key === CURRENT_THEME;
+                const sc = t.screenshot
+                  ? ('background-image:url(' + JSON.stringify(t.screenshot).slice(1, -1) + ');')
+                  : '';
+                html += `<div class="theme-row ${active ? 'active-theme' : ''}">
+                  <div class="theme-screenshot" style="${sc}">${t.screenshot ? '' : 'no screenshot'}</div>
+                  <div class="theme-detail">
+                    <h4 class="name">${escapeHtml(t.name || t.key)}</h4>
+                    <div class="meta">作者：${escapeHtml(t.author || '未知')}${t.version ? '　版本：' + escapeHtml(t.version) : ''}</div>
+                    <div class="desc">${escapeHtml(t.description || '')}</div>
+                    <div class="actions">
+                      ${active
+                        ? '<button class="btn btn-disabled" disabled>当前启用</button> <a href="#settings-reading" class="btn">编辑主题配置</a>'
+                        : '<button class="btn btn-primary" data-theme-enable="' + escapeHtml(t.key) + '">启用</button> <button class="btn btn-disabled" disabled>编辑</button>'
+                      }
+                    </div>
+                  </div>
+                </div>`;
+              });
+              html += '</div>';
+              html += `<div class="hint-box" style="margin-top:16px">
+                说明：启用主题需要修改站点 <code>_config.yml</code> 的 <code>theme</code> 字段。
+                点击「启用」按钮将跳转到「设置 → 基本」表单，请手动在该表单中切换主题并点击 Save 保存提交。
+              </div>`;
+              break;
+            }
+            case 'dashboard-backup': {
+              html += `<div class="typecho-card">
+                <div class="typecho-card-head">备份与版本历史</div>
+                <div class="typecho-card-body">
+                  <div class="hint-box" style="margin-bottom:12px">
+                    本站内容托管在 GitHub，所有修改会通过 Decap CMS 自动 Commit 到 main 分支。
+                  </div>
+                  <a class="btn btn-primary" href="https://github.com/imhaikun/blog/commits/main" target="_blank" rel="noopener">查看 GitHub 提交历史</a>
+                  <a class="btn" href="https://github.com/imhaikun/blog" target="_blank" rel="noopener">前往仓库主页</a>
+                </div>
+              </div>`;
+              break;
+            }
+            case 'manage-categories': {
+              const posts = (POSTS_INFO.length ? POSTS_INFO : await loadPostsInfo());
+              const cats = collectCategories(posts);
+              html += `<div class="typecho-card">
+                <div class="typecho-card-head">分类列表 (共 ${cats.length} 个)</div>
+                <div class="typecho-card-body">`;
+              if (cats.length === 0) {
+                html += '<div class="hint-box">暂无分类。在文章 frontmatter 中添加 <code>categories: 分类名</code> 后会出现在这里。</div>';
+              } else {
+                html += '<table class="admin-table"><thead><tr><th>分类名</th><th style="width:120px">文章数</th><th style="width:180px">操作</th></tr></thead><tbody>';
+                cats.forEach(c => {
+                  html += `<tr>
+                    <td>${escapeHtml(c.name)}</td>
+                    <td>${c.count}</td>
+                    <td><a href="${escapeHtml('/categories/' + encodeURIComponent(c.name)) + '/'}">查看前台</a></td>
+                  </tr>`;
+                });
+                html += '</tbody></table>';
+              }
+              html += '</div></div>';
+              break;
+            }
+            case 'manage-tags': {
+              const posts = (POSTS_INFO.length ? POSTS_INFO : await loadPostsInfo());
+              const tags = collectTags(posts);
+              html += `<div class="typecho-card">
+                <div class="typecho-card-head">标签列表 (共 ${tags.length} 个)</div>
+                <div class="typecho-card-body">`;
+              if (tags.length === 0) {
+                html += '<div class="hint-box">暂无标签。在文章 frontmatter 中添加 <code>tags: [标签1, 标签2]</code> 后会出现在这里。</div>';
+              } else {
+                html += '<table class="admin-table"><thead><tr><th>标签名</th><th style="width:120px">文章数</th><th style="width:180px">操作</th></tr></thead><tbody>';
+                tags.forEach(t => {
+                  html += `<tr>
+                    <td>${escapeHtml(t.name)}</td>
+                    <td>${t.count}</td>
+                    <td><a href="${escapeHtml('/tags/' + encodeURIComponent(t.name)) + '/'}">查看前台</a></td>
+                  </tr>`;
+                });
+                html += '</tbody></table>';
+              }
+              html += '</div></div>';
+              break;
+            }
+            case 'manage-comments': {
+              html += `<div class="typecho-card">
+                <div class="typecho-card-head">评论管理</div>
+                <div class="typecho-card-body">
+                  <div class="hint-box">Hexo 是静态博客，评论不在本地数据库中。请在「设置 → 阅读」和「设置 → 评论」中选择评论系统（如 Giscus、Waline），然后前往对应平台管理评论内容。</div>
+                </div>
+              </div>`;
+              break;
+            }
+            case 'manage-users': {
+              html += `<div class="typecho-card">
+                <div class="typecho-card-head">用户列表</div>
+                <div class="typecho-card-body">
+                  <table class="admin-table">
+                    <thead><tr><th>用户名</th><th>昵称</th><th>角色</th><th>操作</th></tr></thead>
+                    <tbody><tr>
+                      <td>admin</td>
+                      <td>${escapeHtml(SITE_INFO.author || CURRENT_THEME)}</td>
+                      <td>超级管理员</td>
+                      <td><a href="#dashboard-profile">个人设置</a></td>
+                    </tr></tbody>
+                  </table>
+                </div>
+              </div>`;
+              break;
+            }
+            case 'settings-comment': {
+              html += `<div class="hint-box" style="margin-bottom:16px">
+                评论系统选择和参数主要写入主题配置。点击下方按钮直接跳转到「阅读设置」中的评论部分填写。
+              </div>
+              <div class="typecho-card">
+                <div class="typecho-card-head">快捷跳转</div>
+                <div class="typecho-card-body">
+                  <a href="#settings-reading" class="btn btn-primary">前往主题配置（评论设置）</a>
+                </div>
+              </div>`;
+              break;
+            }
+          }
+          cv.innerHTML = html;
+
+          // 主题列表的「启用」按钮事件
+          cv.querySelectorAll('[data-theme-enable]').forEach(btn => {
+            btn.addEventListener('click', function () {
+              const key = btn.getAttribute('data-theme-enable');
+              if (!key) return;
+              const ok = confirm('确定将主题切换为 ' + key + ' 吗？\n\n接下来会跳转到「站点基本设置」，请手动在该表单中切换 theme 字段为 ' + key + '，然后点击 Publish 保存。');
+              if (!ok) return;
+              // 跳转到站点设置页面，并提示用户手动切（Decap 原生表单无法直接 set 值，除非走后端）
+              setTimeout(function () {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#fff9db;color:#d97706;border:1px solid #fbbf24;padding:10px 16px;border-radius:4px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.1);max-width:520px;font-size:13px;';
+                hint.textContent = '请在右侧表单中找到「启用主题」下拉框，切换为 ' + key + ' 后点击 Save / Publish 提交保存。';
+                document.body.appendChild(hint);
+                setTimeout(() => { if (hint.parentNode) hint.parentNode.removeChild(hint); }, 8000);
+              }, 800);
+              try { history.replaceState(null, '', '#settings-basic'); } catch (_) {}
+              try { applyRoute(); } catch (_) {}
+            });
+          });
+        }
+
+        let _routeBusy = false;
+        /* ========== 核心路由入口 ========== */
+        async function applyRoute() {
+          if (_routeBusy) return;
+          _routeBusy = true;
+          try {
+            let hash = location.hash || '';
+            const parsed = parseHash(hash);
+
+            if (parsed.type === 'decap') {
+              document.body.classList.add('route-decap');
+              document.body.classList.remove('route-custom');
+              const target = parsed.target || '';
+              const cur = location.hash || '';
+
+              const needSwitch = target && cur !== target &&
+                normalizeHashBody(cur) !== normalizeHashBody(target);
+              if (needSwitch) {
+                if (cur.startsWith('#decap:') || !cur.startsWith('#/') || normalizeHashBody(cur) === normalizeHashBody(target).replace(/^decap:/, '')) {
+                  try { history.replaceState(null, '', target); } catch (e) {}
+                } else {
+                  try { history.replaceState(null, '', target); } catch (e) {}
+                }
+                // 让 Decap 在下一个 tick 内自己感知到 hash 变化并渲染
+                if (typeof window.dispatchEvent === 'function') {
+                  try {
+                    window.dispatchEvent(new HashChangeEvent('hashchange', {
+                      oldURL: location.href.split('#')[0] + cur,
+                      newURL: location.href.split('#')[0] + target,
+                    }));
+                  } catch (e) {}
+                }
+              }
+              setPageTitleAndCrumb({ type: 'decap', target: parsed.target, logical: parsed.logical });
+              updateMenuActive(parsed);
+            } else {
+              document.body.classList.remove('route-decap');
+              document.body.classList.add('route-custom');
+              const cur = location.hash || '';
+              const expected = '#' + (parsed.logical || 'dashboard-summary');
+              if (cur && normalizeHashBody(cur) !== normalizeHashBody(expected) && !cur.startsWith('#/collections') && !cur.startsWith('#/media-library') && !cur.startsWith('#/edit/') && !cur.startsWith('#/workflow/')) {
+                try { history.replaceState(null, '', expected); } catch (e) {}
+              }
+              setPageTitleAndCrumb({ type: 'custom', logical: parsed.logical });
+              updateMenuActive({ type: 'custom', logical: parsed.logical });
+              try {
+                await renderCustom(parsed.logical);
+              } catch (e) {
+                console.error('renderCustom error:', e);
+              }
+            }
+          } finally {
+            setTimeout(function () { _routeBusy = false; }, 50);
+          }
+        }
+
+        /* 统一事件委托：拦截所有站内锚点跳转（#xxx），防止 Decap 篡改 */
+        document.addEventListener('click', function (e) {
+          const target = e.target;
+          if (!target) return;
+          const a = target.closest && target.closest('a[href^="#"]');
+          if (!a) return;
+          const href = a.getAttribute('href') || '';
+          if (!href || !href.startsWith('#')) return;
+          if (a.target && (a.target === '_blank' || a.target === 'blank')) return;
+          if (href === '#' || href === '#/' || href === '#top' || href === '#!') return;
+          // 在 side topbar 里的外链跳转直接冒泡给默认处理
+          if (href.length > 200) return;
+          e.preventDefault();
+          e.stopPropagation();
+          try { history.replaceState(null, '', href); } catch (_) {
+            try { location.hash = href.replace(/^#/, ''); } catch (__) {}
+          }
+          try { applyRoute(); } catch (_) {}
+          return false;
+        }, true);
+
+        // 一级菜单点击：若未激活则默认打开其第一个子菜单
+        document.querySelectorAll('#typechoSidebar .l1-item').forEach(el => {
+          el.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const group = el.parentElement;
+            const firstL2 = group.querySelector('.l2-item a');
+            const href = firstL2 ? firstL2.getAttribute('href') : null;
+            if (href) {
+              try { history.replaceState(null, '', href); } catch (_) { location.hash = href.replace(/^#/, ''); }
+              try { applyRoute(); } catch (_) {}
+            }
+            return false;
+          });
+        });
+
+        window.addEventListener('hashchange', function () {
+          try { applyRoute(); } catch (e) { console.error('hashchange applyRoute error:', e); }
+        });
+
+        /* ========== 初始化挂载 ========== */
+        async function bootTypechoShell() {
+          try { await applyRoute(); } catch (e) { console.error('applyRoute boot error:', e); }
+          try { await loadCurrentTheme(); } catch (e) { console.error('loadCurrentTheme error:', e); }
+          try { await loadPostsInfo(); } catch (e) { console.error('loadPostsInfo error:', e); }
+          try { await applyRoute(); } catch (e) { console.error('applyRoute 2nd error:', e); }
+          // Decap 初始化完成后再强制刷新一次路由（防止它篡改 hash）
+          setTimeout(function () { try { applyRoute(); } catch (e) {} }, 800);
+          setTimeout(function () { try { applyRoute(); } catch (e) {} }, 2500);
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', bootTypechoShell);
+        } else {
+          bootTypechoShell();
+        }
+      })();
+
+      /* ==================== 4. 拆分文章列表 summary（原脚本保留） ==================== */
       (function () {
         const SPLIT_MARK = '__TITLE_DATE_SPLIT__';
         const PROCESSED_FLAG = '__entry_split_done__';
@@ -549,19 +1363,13 @@
           while (p) {
             if (p.nodeType === 1) {
               const tag = (p.tagName || '').toUpperCase();
-              if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'TEXTAREA') {
-                return true;
-              }
+              if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'TEXTAREA') return true;
               if (p.classList && (
                 p.classList.contains('entry-row-flex') ||
                 p.classList.contains('entry-title-left') ||
                 p.classList.contains('entry-date-right')
-              )) {
-                return true;
-              }
-              if (p[PROCESSED_FLAG]) {
-                return true;
-              }
+              )) return true;
+              if (p[PROCESSED_FLAG]) return true;
             }
             p = p.parentNode;
           }
@@ -573,20 +1381,14 @@
           let found = 0;
           const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
             acceptNode: function (node) {
-              if (!node.nodeValue || node.nodeValue.indexOf(SPLIT_MARK) === -1) {
-                return NodeFilter.FILTER_REJECT;
-              }
-              if (isInsideSkippedTag(node)) {
-                return NodeFilter.FILTER_REJECT;
-              }
+              if (!node.nodeValue || node.nodeValue.indexOf(SPLIT_MARK) === -1) return NodeFilter.FILTER_REJECT;
+              if (isInsideSkippedTag(node)) return NodeFilter.FILTER_REJECT;
               return NodeFilter.FILTER_ACCEPT;
             }
           });
-
           const targets = [];
           let n;
           while ((n = walker.nextNode())) targets.push(n);
-
           for (let i = 0; i < targets.length; i++) {
             if (splitTextNode(targets[i])) found++;
           }
@@ -595,79 +1397,54 @@
 
         function debouncedScan(delay) {
           if (debounceTimer) clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(function () {
-            scanAndSplit(document.body);
-          }, delay || 80);
+          debounceTimer = setTimeout(function () { scanAndSplit(document.body); }, delay || 80);
         }
 
-        function boot() {
+        function bootSplit() {
           scanAndSplit(document.body);
-
           const observer = new MutationObserver(function (mutations) {
             let shouldScan = false;
             for (let i = 0; i < mutations.length; i++) {
               const m = mutations[i];
-              if (m.type === 'characterData') {
-                if (m.target && m.target.nodeValue && m.target.nodeValue.indexOf(SPLIT_MARK) !== -1) {
-                  if (!isInsideSkippedTag(m.target)) {
-                    shouldScan = true;
-                    break;
-                  }
-                }
+              if (m.type === 'characterData' && m.target && m.target.nodeValue && m.target.nodeValue.indexOf(SPLIT_MARK) !== -1) {
+                if (!isInsideSkippedTag(m.target)) { shouldScan = true; break; }
               }
-              if (m.addedNodes && m.addedNodes.length) {
-                shouldScan = true;
-                break;
-              }
+              if (m.addedNodes && m.addedNodes.length) { shouldScan = true; break; }
             }
-            if (shouldScan) {
-              debouncedScan(80);
-            }
+            if (shouldScan) debouncedScan(80);
           });
-
-          observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-          });
+          observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 
           let rounds = 0;
           const timer = setInterval(function () {
             rounds++;
             const found = scanAndSplit(document.body);
-            if (rounds >= 25 || (rounds > 5 && found === 0 && !debounceTimer)) {
-              clearInterval(timer);
-            }
+            if (rounds >= 25 || (rounds > 5 && found === 0 && !debounceTimer)) clearInterval(timer);
           }, 400);
 
           if (window.CMS && typeof window.CMS.registerEventListener === 'function') {
             try {
               window.CMS.registerEventListener({
                 name: 'entryListSplit',
-                handler: function () {
-                  debouncedScan(100);
-                }
+                handler: function () { debouncedScan(100); }
               });
             } catch (e) {}
           }
         }
 
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', boot);
+          document.addEventListener('DOMContentLoaded', bootSplit);
         } else {
-          boot();
+          bootSplit();
         }
       })();
 
-      // ========== 新建文章时自动填充当前日期时间 ==========
+      /* ==================== 5. 新建文章自动填充日期（原脚本保留） ==================== */
       (function () {
         const DATE_FIELD_FLAG = '__auto_date_filled__';
         const PLACEHOLDER_PATTERN = /\?{4}-\?{2}-\?{2}|--:--|^\s*$/;
 
-        function padZero(n) {
-          return (n < 10 ? '0' : '') + n;
-        }
-
+        function padZero(n) { return (n < 10 ? '0' : '') + n; }
         function getCurrentDateTimeLocal() {
           const now = new Date();
           const year = now.getFullYear();
@@ -694,38 +1471,28 @@
               const label = document.querySelector('label[for="' + id + '"]');
               return label ? (label.textContent || '').toLowerCase() : '';
             })();
-            const isDateField = 
-              input.type === 'date' || 
+            const isDateField =
+              input.type === 'date' ||
               input.type === 'datetime-local' ||
               (PLACEHOLDER_PATTERN.test(val) && (labelText.indexOf('日期') !== -1 || labelText.indexOf('date') !== -1));
-            if (isDateField) {
-              inputs.push(input);
-            }
+            if (isDateField) inputs.push(input);
           });
-
           const allSelects = document.querySelectorAll('select');
           allSelects.forEach(function (select) {
             if (select && select.parentNode) {
               const wrapper = select.closest('[class*="DateTimeWidget"], [class*="datetime-widget"], [class*="DateControl"], [class*="date-control"]');
-              if (wrapper && !wrapper[DATE_FIELD_FLAG]) {
-                inputs.push(wrapper);
-              }
+              if (wrapper && !wrapper[DATE_FIELD_FLAG]) inputs.push(wrapper);
             }
           });
-
           return inputs;
         }
 
         function fillDateTimeWidget(wrapper, values) {
           if (!wrapper || wrapper[DATE_FIELD_FLAG]) return false;
-
           const dateInput = wrapper.querySelector('input[type="date"], input[type="text"]');
-          const timeInput = wrapper.querySelectorAll('input[type="time"], input[type="text"]')[1] || 
-                           wrapper.querySelector('input[type="time"]');
+          const timeInput = wrapper.querySelectorAll('input[type="time"], input[type="text"]')[1] || wrapper.querySelector('input[type="time"]');
           const selects = wrapper.querySelectorAll('select');
-          
           let filled = false;
-
           if (dateInput && PLACEHOLDER_PATTERN.test(dateInput.value || '')) {
             try {
               dateInput.value = values.dateStr;
@@ -734,7 +1501,6 @@
               filled = true;
             } catch (e) {}
           }
-
           if (timeInput && PLACEHOLDER_PATTERN.test(timeInput.value || '')) {
             try {
               timeInput.value = values.timeStr;
@@ -743,37 +1509,26 @@
               filled = true;
             } catch (e) {}
           }
-
           if (selects.length >= 3) {
             const yearSel = selects[0];
             const monthSel = selects[1];
             const daySel = selects[2];
-            
             const y = values.dateStr.substring(0, 4);
             const m = values.dateStr.substring(5, 7);
             const d = values.dateStr.substring(8, 10);
-
-            tryFillSelect(yearSel, y);
-            tryFillSelect(monthSel, m);
-            tryFillSelect(daySel, d);
-
+            tryFillSelect(yearSel, y); tryFillSelect(monthSel, m); tryFillSelect(daySel, d);
             if (selects.length >= 5) {
               const hourSel = selects[3];
               const minSel = selects[4];
               const h = values.timeStr.substring(0, 2);
               const min = values.timeStr.substring(3, 5);
-              tryFillSelect(hourSel, h);
-              tryFillSelect(minSel, min);
+              tryFillSelect(hourSel, h); tryFillSelect(minSel, min);
             }
             filled = true;
           }
-
-          if (filled) {
-            wrapper[DATE_FIELD_FLAG] = true;
-          }
+          if (filled) wrapper[DATE_FIELD_FLAG] = true;
           return filled;
         }
-
         function tryFillSelect(select, value) {
           if (!select) return false;
           for (let i = 0; i < select.options.length; i++) {
@@ -790,7 +1545,6 @@
           }
           return false;
         }
-
         function tryClickNowButton(wrapper) {
           if (!wrapper) return false;
           const buttons = wrapper.querySelectorAll('button, [role="button"], [class*="Now"], [class*="now"]');
@@ -798,42 +1552,29 @@
             const btn = buttons[i];
             const txt = (btn.textContent || '').toLowerCase().trim();
             if (txt === 'now' || txt === '现在' || txt.indexOf('now') !== -1 || txt.indexOf('现在') !== -1) {
-              try {
-                btn.click();
-                return true;
-              } catch (e) {}
+              try { btn.click(); return true; } catch (e) {}
             }
           }
           return false;
         }
-
         function scanAndFillDate() {
           const values = getCurrentDateTimeLocal();
           const dateTargets = findDateInputs();
           let anyFilled = false;
-
           for (let i = 0; i < dateTargets.length; i++) {
             const target = dateTargets[i];
             if (target.nodeType === 1 && target.tagName !== 'INPUT') {
               if (tryClickNowButton(target)) {
-                anyFilled = true;
-                target[DATE_FIELD_FLAG] = true;
-                continue;
+                anyFilled = true; target[DATE_FIELD_FLAG] = true; continue;
               }
-              if (fillDateTimeWidget(target, values)) {
-                anyFilled = true;
-              }
+              if (fillDateTimeWidget(target, values)) anyFilled = true;
             } else if (target.tagName === 'INPUT') {
               const val = target.value || '';
               if (PLACEHOLDER_PATTERN.test(val)) {
                 try {
-                  if (target.type === 'date') {
-                    target.value = values.dateStr;
-                  } else if (target.type === 'datetime-local') {
-                    target.value = values.dateStr + 'T' + values.timeStr;
-                  } else {
-                    target.value = values.fullStr;
-                  }
+                  if (target.type === 'date') target.value = values.dateStr;
+                  else if (target.type === 'datetime-local') target.value = values.dateStr + 'T' + values.timeStr;
+                  else target.value = values.fullStr;
                   target.dispatchEvent(new Event('input', { bubbles: true }));
                   target.dispatchEvent(new Event('change', { bubbles: true }));
                   anyFilled = true;
@@ -841,80 +1582,47 @@
               }
             }
           }
-
           return anyFilled;
         }
-
         let fillTimer = null;
         function debouncedFill(delay) {
           if (fillTimer) clearTimeout(fillTimer);
           fillTimer = setTimeout(scanAndFillDate, delay || 150);
         }
-
         function bootAutoDate() {
           setTimeout(scanAndFillDate, 500);
-
           const observer = new MutationObserver(function (mutations) {
             let shouldCheck = false;
             for (let i = 0; i < mutations.length; i++) {
               const m = mutations[i];
-              if (m.addedNodes && m.addedNodes.length > 0) {
-                shouldCheck = true;
-                break;
-              }
-              if (m.type === 'attributes' && m.target && m.target.tagName === 'INPUT') {
-                shouldCheck = true;
-                break;
-              }
+              if (m.addedNodes && m.addedNodes.length > 0) { shouldCheck = true; break; }
+              if (m.type === 'attributes' && m.target && m.target.tagName === 'INPUT') { shouldCheck = true; break; }
             }
-            if (shouldCheck) {
-              debouncedFill(120);
-            }
+            if (shouldCheck) debouncedFill(120);
           });
-
           observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['value', 'class']
+            childList: true, subtree: true, attributes: true, attributeFilter: ['value', 'class']
           });
-
           let rounds = 0;
           const intervalTimer = setInterval(function () {
-            rounds++;
-            scanAndFillDate();
-            if (rounds >= 15) {
-              clearInterval(intervalTimer);
-            }
+            rounds++; scanAndFillDate();
+            if (rounds >= 15) clearInterval(intervalTimer);
           }, 800);
-
           if (window.CMS && typeof window.CMS.registerEventListener === 'function') {
             try {
               window.CMS.registerEventListener({
                 name: 'prePublishAutoDate',
-                handler: function (event) {
-                  setTimeout(function () {
-                    scanAndFillDate();
-                  }, 200);
-                }
+                handler: function () { setTimeout(scanAndFillDate, 200); }
               });
             } catch (e) {}
-          }
-
-          if (window.CMS && typeof window.CMS.registerEventListener === 'function') {
             try {
               window.CMS.registerEventListener({
                 name: 'onEntryNew',
-                handler: function (event) {
-                  setTimeout(function () {
-                    scanAndFillDate();
-                  }, 300);
-                }
+                handler: function () { setTimeout(scanAndFillDate, 300); }
               });
             } catch (e) {}
           }
         }
-
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', bootAutoDate);
         } else {
