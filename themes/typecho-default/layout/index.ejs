@@ -1,0 +1,76 @@
+<div class="col-mb-12 col-8" id="main" role="main">
+    <% if (is_archive()) { %>
+    <h3 class="archive-title">
+        <% if (is_category()) { %>分类 <%= page.category %> 下的文章
+        <% } else if (is_tag()) { %>标签 <%= page.tag %> 下的文章
+        <% } else if (is_year()) { %><%= page.year %> 年的文章
+        <% } else if (is_month()) { %><%= page.year %>年<%= page.month %>月的文章
+        <% } %>
+    </h3>
+    <% } %>
+    <% if (posts.length) { %>
+        <% posts.forEach(function(post) { %>
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+            <h2 class="post-title" itemprop="name headline">
+                <a itemprop="url" href="<%= url_for(post.path) %>"><%= post.title %></a>
+            </h2>
+            <ul class="post-meta">
+                <li itemprop="author" itemscope itemtype="http://schema.org/Person">
+                    作者: <a itemprop="name" href="<%= url_for(post.author) %>" rel="author"><%= post.author %></a>
+                </li>
+                <li>时间: <time datetime="<%= post.date.toISOString() %>" itemprop="datePublished"><%= post.date.format('YYYY-MM-DD') %></time></li>
+                <li>分类: <%= post.categories.map(function(c) { return '<a href="' + url_for(c.path) + '">' + c.name + '</a>'; }).join(', ') %></li>
+                <li itemprop="interactionCount">
+                    <a itemprop="discussionUrl" href="<%= url_for(post.path) %>#comments"><%= post.comments.length || 0 %> 条评论</a>
+                </li>
+            </ul>
+            <div class="post-content" itemprop="articleBody">
+                <%= post.excerpt || post.content %>
+            </div>
+        </article>
+        <% }); %>
+    <% } else { %>
+        <article class="post">
+            <h2 class="post-title">没有找到内容</h2>
+        </article>
+    <% } %>
+    <% if (page.prev || page.next) { %>
+    <ul class="page-navigator">
+        <% if (page.prev) { %><li><a href="<%= url_for(page.prev) %>">&laquo; 前一页</a></li><% } %>
+        <% if (page.next) { %><li><a href="<%= url_for(page.next) %>">后一页 &raquo;</a></li><% } %>
+    </ul>
+    <% } %>
+</div>
+<div class="col-mb-12 col-offset-1 col-3 kit-hidden-tb" id="secondary" role="complementary">
+    <section class="widget">
+        <h3 class="widget-title">最新文章</h3>
+        <ul class="widget-list">
+            <% site.posts.slice(0, 5).forEach(function(post) { %>
+                <li><a href="<%= url_for(post.path) %>"><%= post.title %></a></li>
+            <% }); %>
+        </ul>
+    </section>
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+        <ul class="widget-list">
+            <% site.categories.forEach(function(cat) { %>
+                <li><a href="<%= url_for(cat.path) %>"><%= cat.name %></a> (<%= cat.posts.length %>)</li>
+            <% }); %>
+        </ul>
+    </section>
+    <section class="widget">
+        <h3 class="widget-title">归档</h3>
+        <ul class="widget-list">
+            <% site.archives.forEach(function(archive) { %>
+                <li><a href="<%= url_for(archive.path) %>"><%= archive.name %></a> (<%= archive.count %>)</li>
+            <% }); %>
+        </ul>
+    </section>
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="<%= url_for('/admin/') %>">管理后台</a></li>
+            <li><a href="<%= url_for('rss2.xml') %>">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>

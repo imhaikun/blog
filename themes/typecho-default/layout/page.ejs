@@ -1,0 +1,41 @@
+<div class="col-mb-12 col-8" id="main" role="main">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <h1 class="post-title" itemprop="name headline"><%= page.title %></h1>
+        <div class="post-content" itemprop="articleBody">
+            <%= page.content %>
+        </div>
+    </article>
+</div>
+<div class="col-mb-12 col-offset-1 col-3 kit-hidden-tb" id="secondary" role="complementary">
+    <section class="widget">
+        <h3 class="widget-title">最新文章</h3>
+        <ul class="widget-list">
+            <% site.posts.slice(0, 5).forEach(function(post) { %>
+                <li><a href="<%= url_for(post.path) %>"><%= post.title %></a></li>
+            <% }); %>
+        </ul>
+    </section>
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+        <ul class="widget-list">
+            <% site.categories.forEach(function(cat) { %>
+                <li><a href="<%= url_for(cat.path) %>"><%= cat.name %></a> (<%= cat.posts.length %>)</li>
+            <% }); %>
+        </ul>
+    </section>
+    <section class="widget">
+        <h3 class="widget-title">归档</h3>
+        <ul class="widget-list">
+            <% site.archives.forEach(function(archive) { %>
+                <li><a href="<%= url_for(archive.path) %>"><%= archive.name %></a> (<%= archive.count %>)</li>
+            <% }); %>
+        </ul>
+    </section>
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="<%= url_for('/admin/') %>">管理后台</a></li>
+            <li><a href="<%= url_for('rss2.xml') %>">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
