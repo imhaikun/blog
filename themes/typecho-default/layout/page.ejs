@@ -26,8 +26,8 @@
     <section class="widget">
         <h3 class="widget-title">归档</h3>
         <ul class="widget-list">
-            <% site.archives.forEach(function(archive) { %>
-                <li><a href="<%= url_for(archive.path) %>"><%= archive.name %></a> (<%= archive.count %>)</li>
+            <% var archiveMap = {}; site.posts.forEach(function(post) { var ym = post.date.format('YYYY/MM'); archiveMap[ym] = (archiveMap[ym] || 0) + 1; }); var yms = Object.keys(archiveMap).sort().reverse(); yms.forEach(function(ym) { %>
+                <li><a href="<%= url_for('/archives/' + ym + '/') %>"><%= ym.replace('/', '年') + '月' %></a> (<%= archiveMap[ym] %>)</li>
             <% }); %>
         </ul>
     </section>

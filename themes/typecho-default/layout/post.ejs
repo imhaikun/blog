@@ -5,15 +5,15 @@
         </h1>
         <ul class="post-meta">
             <li itemprop="author" itemscope itemtype="http://schema.org/Person">
-                作者: <a itemprop="name" href="<%= url_for(page.author) %>" rel="author"><%= page.author %></a>
+                作者: <a itemprop="name" href="<%= url_for(page.path) %>" rel="author"><%= page.author %></a>
             </li>
             <li>时间: <time datetime="<%= page.date.toISOString() %>" itemprop="datePublished"><%= page.date.format('YYYY-MM-DD') %></time></li>
-            <li>分类: <%= page.categories.map(function(c) { return '<a href="' + url_for(c.path) + '">' + c.name + '</a>'; }).join(', ') %></li>
+            <li>分类: <%= page.categories && page.categories.length ? page.categories.map(function(c) { return '<a href="' + url_for(c.path) + '">' + c.name + '</a>'; }).join(', ') : '未分类' %></li>
         </ul>
         <div class="post-content" itemprop="articleBody">
             <%= page.content %>
         </div>
-        <p itemprop="keywords" class="tags">标签: <%= page.tags.map(function(t) { return '<a href="' + url_for(t.path) + '">' + t.name + '</a>'; }).join(', ') %></p>
+        <p itemprop="keywords" class="tags">标签: <%= page.tags && page.tags.length ? page.tags.map(function(t) { return '<a href="' + url_for(t.path) + '">' + t.name + '</a>'; }).join(', ') : '无' %></p>
     </article>
     <ul class="post-near">
         <% if (page.prev) { %><li>上一篇: <a href="<%= url_for(page.prev.path) %>"><%= page.prev.title %></a></li><% } else { %><li>上一篇: 没有了</li><% } %>
@@ -40,8 +40,8 @@
     <section class="widget">
         <h3 class="widget-title">归档</h3>
         <ul class="widget-list">
-            <% site.archives.forEach(function(archive) { %>
-                <li><a href="<%= url_for(archive.path) %>"><%= archive.name %></a> (<%= archive.count %>)</li>
+            <% var archiveMap = {}; site.posts.forEach(function(post) { var ym = post.date.format('YYYY/MM'); archiveMap[ym] = (archiveMap[ym] || 0) + 1; }); var yms = Object.keys(archiveMap).sort().reverse(); yms.forEach(function(ym) { %>
+                <li><a href="<%= url_for('/archives/' + ym + '/') %>"><%= ym.replace('/', '年') + '月' %></a> (<%= archiveMap[ym] %>)</li>
             <% }); %>
         </ul>
     </section>
