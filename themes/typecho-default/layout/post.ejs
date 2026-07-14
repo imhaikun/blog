@@ -8,12 +8,12 @@
                 作者: <a itemprop="name" href="<%= url_for(page.path) %>" rel="author"><%= page.author %></a>
             </li>
             <li>时间: <time datetime="<%= page.date.toISOString() %>" itemprop="datePublished"><%= page.date.format('YYYY-MM-DD') %></time></li>
-            <li>分类: <%= page.categories && page.categories.length ? page.categories.map(function(c) { return '<a href="' + url_for(c.path) + '">' + c.name + '</a>'; }).join(', ') : '未分类' %></li>
+            <li>分类: <%- page.categories && page.categories.length ? page.categories.map(function(c) { return '<a href="' + url_for(c.path) + '">' + c.name + '</a>'; }).join(', ') : '未分类' %></li>
         </ul>
         <div class="post-content" itemprop="articleBody">
-            <%= page.content %>
+            <%- page.content %>
         </div>
-        <p itemprop="keywords" class="tags">标签: <%= page.tags && page.tags.length ? page.tags.map(function(t) { return '<a href="' + url_for(t.path) + '">' + t.name + '</a>'; }).join(', ') : '无' %></p>
+        <p itemprop="keywords" class="tags">标签: <%- page.tags && page.tags.length ? page.tags.map(function(t) { return '<a href="' + url_for(t.path) + '">' + t.name + '</a>'; }).join(', ') : '无' %></p>
     </article>
     <ul class="post-near">
         <% if (page.prev) { %><li>上一篇: <a href="<%= url_for(page.prev.path) %>"><%= page.prev.title %></a></li><% } else { %><li>上一篇: 没有了</li><% } %>

@@ -19,13 +19,13 @@
                     作者: <a itemprop="name" href="<%= url_for(post.path) %>" rel="author"><%= post.author %></a>
                 </li>
                 <li>时间: <time datetime="<%= post.date.toISOString() %>" itemprop="datePublished"><%= post.date.format('YYYY-MM-DD') %></time></li>
-                <li>分类: <%= post.categories && post.categories.length ? post.categories.map(function(c) { return '<a href="' + url_for(c.path) + '">' + c.name + '</a>'; }).join(', ') : '未分类' %></li>
+                <li>分类: <%- post.categories && post.categories.length ? post.categories.map(function(c) { return '<a href="' + url_for(c.path) + '">' + c.name + '</a>'; }).join(', ') : '未分类' %></li>
                 <li itemprop="interactionCount">
                     <a itemprop="discussionUrl" href="<%= url_for(post.path) %>#comments"><%= post.comments ? post.comments.length : 0 %> 条评论</a>
                 </li>
             </ul>
             <div class="post-content" itemprop="articleBody">
-                <%= post.excerpt || post.content %>
+                <%- post.excerpt || post.content %>
             </div>
         </article>
         <% }); %>

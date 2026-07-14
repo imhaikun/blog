@@ -28,8 +28,9 @@
                     <nav id="nav-menu" class="clearfix" role="navigation">
                         <a<%= is_home() ? ' class="current"' : '' %> href="<%= url_for('/') %>">首页</a>
                         <% if (site.pages && site.pages.length) { %>
+                            <% var currentPath = this.page.path; %>
                             <% site.pages.filter(function(p) { return p.path && !p.path.startsWith('_') && !p.path.includes('admin'); }).forEach(function(page) { %>
-                                <a<%= page.path === page.path ? ' class="current"' : '' %> href="<%= url_for(page.path) %>" title="<%= page.title %>"><%= page.title %></a>
+                                <a<%= page.path === currentPath ? ' class="current"' : '' %> href="<%= url_for(page.path) %>" title="<%= page.title %>"><%= page.title %></a>
                             <% }); %>
                         <% } %>
                     </nav>
