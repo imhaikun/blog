@@ -16,6 +16,12 @@
         </ul>
     </section>
     <section class="widget">
+        <h3 class="widget-title">最近回复</h3>
+        <ul class="widget-list">
+            <li><a href="<%= url_for('/admin/') %>">登录查看</a></li>
+        </ul>
+    </section>
+    <section class="widget">
         <h3 class="widget-title">分类</h3>
         <ul class="widget-list">
             <% site.categories.forEach(function(cat) { %>
@@ -27,7 +33,7 @@
         <h3 class="widget-title">归档</h3>
         <ul class="widget-list">
             <% var archiveMap = {}; site.posts.forEach(function(post) { var ym = post.date.format('YYYY/MM'); archiveMap[ym] = (archiveMap[ym] || 0) + 1; }); var yms = Object.keys(archiveMap).sort().reverse(); yms.forEach(function(ym) { %>
-                <li><a href="<%= url_for('/archives/' + ym + '/') %>"><%= ym.replace('/', '年') + '月' %></a> (<%= archiveMap[ym] %>)</li>
+                <li><a href="<%= url_for('/archives/' + ym + '/') %>"><%= ym.replace('/', '/') %></a></li>
             <% }); %>
         </ul>
     </section>
@@ -36,6 +42,7 @@
         <ul class="widget-list">
             <li><a href="<%= url_for('/admin/') %>">管理后台</a></li>
             <li><a href="<%= url_for('rss2.xml') %>">文章 RSS</a></li>
+            <li><a href="<%= url_for('comments.xml') %>">评论 RSS</a></li>
         </ul>
     </section>
 </div>
