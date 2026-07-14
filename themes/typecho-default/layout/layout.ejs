@@ -27,10 +27,10 @@
                 <div class="col-mb-12">
                     <nav id="nav-menu" class="clearfix" role="navigation">
                         <a<%= is_home() ? ' class="current"' : '' %> href="<%= url_for('/') %>">首页</a>
+                        <% var currentPath = page.path; %>
                         <% if (site.pages && site.pages.length) { %>
-                            <% var currentPath = this.page.path; %>
-                            <% site.pages.filter(function(p) { return p.path && !p.path.startsWith('_') && !p.path.includes('admin'); }).forEach(function(page) { %>
-                                <a<%= page.path === currentPath ? ' class="current"' : '' %> href="<%= url_for(page.path) %>" title="<%= page.title %>"><%= page.title %></a>
+                            <% site.pages.filter(function(p) { return p.path && !p.path.startsWith('_') && !p.path.includes('admin'); }).forEach(function(p) { %>
+                                <a<%= p.path === currentPath ? ' class="current"' : '' %> href="<%= url_for(p.path) %>" title="<%= p.title %>"><%= p.title %></a>
                             <% }); %>
                         <% } %>
                     </nav>
